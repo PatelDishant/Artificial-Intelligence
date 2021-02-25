@@ -88,7 +88,8 @@ double MiniMax(double gr[graph_size][4], int path[1][2], double minmax_cost[size
 		(*utility)(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, int depth, double gr[graph_size][4]);
 				- This is a pointer to the utility function which returns a value for a specific game configuration
 
-				   NOTE: Unlike the search assignment, this utility function also gets access to the graph so you can do any processing 					 that requires knowledge of the maze for computing the utility values.
+				   NOTE: Unlike the search assignment, this utility function also gets access to the graph so you can do any processing 					 
+				   that requires knowledge of the maze for computing the utility values.
 
 				  * How to call the utility function from within this function : *
 					- Like any other function:
@@ -152,7 +153,117 @@ double MiniMax(double gr[graph_size][4], int path[1][2], double minmax_cost[size
  *		- Document your design (how you implemented the solution, and why) in the report
  *
  ********************************************************************************************************/
+// Regular MiniMax
+if (mode == 0) {
+	// // Get the distance to closest cheese using helper function
+	// int initial_closest_cheese = distanceToClosestItem(mouse_loc, cheese_loc, cheeses);
+	// // Get the distance to closest cat using helper function
+	// int initial_closest_cat = distanceToClosestItem(mouse_loc, cat_loc, cats);
+	
+	if (depth == maxDepth || checkForTerminal(mouse_loc, cat_loc, cheese_loc, cats, cheeses) == 1){
+		return second_utility_function(cat_loc, cheese_loc, mouse_loc, cats, cheeses, depth, gr);
+	}
+	if (agentId == 0) {
+		// Get mouse location index
+		int current_mouse_index = get_graph_index(mouse_loc[0][0], mouse_loc[0][1]);
+		// Check possible moves
+		int max_node_val;
+		int newAgentId = 1;
+		int newDepth = depth + 1;
+		// Array to store new mouse location
+		int new_mouse_loc[1][2];
+		// Stuct to store current mouse location
+		struct graph_location mouse_location = get_graph_location(current_mouse_index);
+		
+		// Check Top
+		if (gr[current_mouse_index][0] == 1) {
+			mouse_location.y = mouse_location.y - 1;
+			new_mouse_loc[0][0] = mouse_location.x;
+			new_mouse_loc[0][1] = mouse_location.y;
+			int current_node_val = MiniMax(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
+			if (max_node_val){
+				if(max_node_val < current_node_val){
+					max_node_val = current_node_val;
+				}
+			} else {
+				max_node_val = current_node_val;
+			}
+		}
 
+		// Check Right
+		if (gr[current_mouse_index][1] == 1) {
+			mouse_location.x = mouse_location.x + 1;
+			new_mouse_loc[0][0] = mouse_location.x;
+			new_mouse_loc[0][1] = mouse_location.y;
+			int current_node_val = MiniMax(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
+			if (max_node_val){
+				if(max_node_val < current_node_val){
+					max_node_val = current_node_val;
+				}
+			} else {
+				max_node_val = current_node_val;
+			}
+		}
+
+		// Check Bottom
+		if (gr[current_mouse_index][2] == 1) {
+			mouse_location.y = mouse_location.y + 1;
+			new_mouse_loc[0][0] = mouse_location.x;
+			new_mouse_loc[0][1] = mouse_location.y;
+			int current_node_val = MiniMax(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
+			if (max_node_val){
+				if(max_node_val < current_node_val){
+					max_node_val = current_node_val;
+				}
+			} else {
+				max_node_val = current_node_val;
+			}
+		}
+
+		// Check Left
+		if (gr[current_mouse_index][3] == 1) {
+			mouse_location.x = mouse_location.x - 1;
+			new_mouse_loc[0][0] = mouse_location.x;
+			new_mouse_loc[0][1] = mouse_location.y;
+			int current_node_val = MiniMax(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
+			if (max_node_val){
+				if(max_node_val < current_node_val){
+					max_node_val = current_node_val;
+				}
+			} else {
+				max_node_val = current_node_val;
+			}
+		}
+
+
+
+	} else {
+		int nextAgentId = agentId + 1;
+		int newDepth = depth + 1;
+		if (nextAgentId == cats){
+			nextAgentId = 0;
+		}
+
+
+
+
+
+
+
+
+		
+	}
+
+
+}
+// Alpha-Beta Pruning
+else if (mode == 1) {
+
+}
+else {
+	printf("\nSelect a valid mode (0 or 1)");
+}
+ 
  // Stub so that the code compiles/runs - This will be removed and replaced by your code!
 
  path[0][0]=mouse_loc[0][0];
@@ -183,8 +294,86 @@ double utility(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], i
 
 		These arguments are as described in A1. Do have a look at your solution!
  */
+	int utility_cost;
+	// Store constants for worse/best case scenarios
+	const int LARGE_POSITIVE = graph_size;
+	const int LARGE_NEGATIVE = -1 * graph_size;
+	// Get the distance to closest cheese using helper function
+	int distance_to_closest_cheese = distanceToClosestItem(mouse_loc, cheese_loc, cheeses);
+	// Get the distance to closest cat using helper function
+	int distance_to_closest_cat = distanceToClosestItem(mouse_loc, cat_loc, cats);
 
- return(1);   // <--- Obviously, this will be replaced by your computer utilities
+	if (distance_to_closest_cat <= 1) {
+		utility_cost = LARGE_NEGATIVE;
+	}
+	return utility_cost;
+//  return(1);   // <--- Obviously, this will be replaced by your computer utilities
+}
+
+
+double new_utility(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, int depth, double gr[graph_size][4], int prev_distance_cheese, int prev_distance_cat)
+{
+ /*
+	This function computes and returns the utility value for a given game configuration.
+	As discussed in lecture, this should return a positive value for configurations that are 'good'
+	for the mouse, and a negative value for locations that are 'bad' for the mouse.
+
+	How to define 'good' and 'bad' is up to you. Note that you can write a utility function
+	that favours your mouse or favours the cats, but that would be a bad idea... (why?)
+
+	Input arguments:
+
+		cat_loc - Cat locations
+		cheese_loc - Cheese locations
+		mouse_loc - Mouse location
+		cats - # of cats
+		cheeses - # of cheeses
+		depth - current search depth
+		gr - The graph's adjacency list for the maze
+
+		These arguments are as described in A1. Do have a look at your solution!
+ */
+	// Try changing to see performance
+	const int CONSTANT_FACTOR = 1;
+	double utility_cost;
+	// // Store constants for worse/best case scenarios
+	// const int LARGE_POSITIVE = graph_size;
+	// const int LARGE_NEGATIVE = -1 * graph_size;
+
+	int new_distance_cat = distanceToClosestItem(mouse_loc, cat_loc, cats);
+	int new_distance_cheese = distanceToClosestItem(mouse_loc, cheese_loc, cheeses);
+
+	// Difference in Manhattan distance (mouse to cat) from initial configuration to new configuration
+	int difference_in_cat_distance = new_distance_cat - prev_distance_cat;
+	// Difference in Manhattan distance (mouse to cheese) from initial configuration to new configuration
+	int difference_in_cheese_distance = prev_distance_cheese - new_distance_cheese;
+
+	utility_cost = (CONSTANT_FACTOR * (difference_in_cat_distance)) + difference_in_cheese_distance;
+
+	return utility_cost;
+}
+
+double second_utility_function(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, int depth, double gr[graph_size][4])
+{
+	// Distance to closest cat and closest cheese
+	int dist_mouse_to_cheese = distanceToClosestItem(mouse_loc, cheese_loc, cheeses);
+	int dist_mouse_to_cat= distanceToClosestItem(mouse_loc, cat_loc, cats);   
+
+	double status;
+	// Mouse is of equal distance from the mouse and cat
+	if (dist_mouse_to_cheese == dist_mouse_to_cat){
+		status = 0;
+	}
+	// The mouse is closer to the cheese / the cat is farther from the mouse
+	else if (dist_mouse_to_cheese < dist_mouse_to_cat){
+		status = 1;
+	}
+	// The mouse is farther from the cheese / the cat is closer to the mouse
+	else {
+		status = -1;
+	}
+
+	return status * (dist_mouse_to_cheese + dist_mouse_to_cat);
 }
 
 int checkForTerminal(int mouse_loc[1][2],int cat_loc[10][2],int cheese_loc[10][2],int cats,int cheeses)
@@ -211,3 +400,75 @@ int checkForTerminal(int mouse_loc[1][2],int cat_loc[10][2],int cheese_loc[10][2
 
 }
 
+
+
+ /********************************************************************************************************
+  * Helper functions from A1
+ ********************************************************************************************************/
+/**
+ * Convert the location to an index in the graph and return it
+ **/
+int get_graph_index(int x, int y)
+{
+	return x + (y * size_X);
+}
+
+/**
+ * Convert the index to a location in the graph and return it
+ **/
+struct graph_location get_graph_location(int index)
+{
+	struct graph_location location;
+	// Corresponding (x,y) location
+	location.x = index % size_X;
+	location.y = index / size_Y;
+	return location;
+}
+
+/**
+ * Calculate the Manhattan distance of two points on a graph  
+ **/
+int calculate_manhattan_distance(struct graph_location p1, struct graph_location p2)
+{
+	const int LEN_SIDE_A = abs(p2.x - p1.x);
+	const int LEN_SIDE_B = abs(p2.y - p1.y);
+	return (int) (LEN_SIDE_A + LEN_SIDE_B);
+}
+/**
+ * Calculate the distance to closest cheese or closest cat
+ * 
+ **/
+int distanceToClosestItem(int mouse_loc[1][2], int item_loc[10][2], int num_items){
+	
+	// Store the mouse location
+	int mouse_index = get_graph_index(mouse_loc[0][0], mouse_loc[0][1]);
+	struct graph_location mouse_location = get_graph_location(mouse_index);
+	
+	// Store the closest cheese/cat location
+	struct graph_location min_item_location;
+
+	int distances[num_items]; // stores Manhattan distance from location of mouse to each cheese/cat
+	int min_item_index = 0; // Index to help remember the min index. Initially first cheese/cat
+	int distance_to_closest_item;
+
+	for (int item_index = 0; item_index < num_items; item_index++)
+	{
+		struct graph_location item_location;
+		item_location.x = item_loc[item_index][0];
+		item_location.y = item_loc[item_index][1];
+
+		distances[item_index] = calculate_manhattan_distance(mouse_location, item_location);
+		
+		// Get the min value from distances array
+		if (item_index != min_item_index && distances[item_index] < distances[min_item_index])
+		{
+			min_item_index = item_index;
+		}
+	}
+
+	min_item_location.x = item_loc[min_item_index][0];
+	min_item_location.y = item_loc[min_item_index][1];
+
+	distance_to_closest_item = distances[min_item_index];
+	return distance_to_closest_item;
+}
