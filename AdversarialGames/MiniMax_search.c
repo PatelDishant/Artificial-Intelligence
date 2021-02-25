@@ -155,10 +155,6 @@ double MiniMax(double gr[graph_size][4], int path[1][2], double minmax_cost[size
  ********************************************************************************************************/
 // Regular MiniMax
 if (mode == 0) {
-	// // Get the distance to closest cheese using helper function
-	// int initial_closest_cheese = distanceToClosestItem(mouse_loc, cheese_loc, cheeses);
-	// // Get the distance to closest cat using helper function
-	// int initial_closest_cat = distanceToClosestItem(mouse_loc, cat_loc, cats);
 	
 	if (depth == maxDepth || checkForTerminal(mouse_loc, cat_loc, cheese_loc, cats, cheeses) == 1){
 		return second_utility_function(cat_loc, cheese_loc, mouse_loc, cats, cheeses, depth, gr);
@@ -174,6 +170,9 @@ if (mode == 0) {
 		int new_mouse_loc[1][2];
 		// Stuct to store current mouse location
 		struct graph_location mouse_location = get_graph_location(current_mouse_index);
+
+		// Struct to store the best location
+		struct graph_location best_location;
 		
 		// Check Top
 		if (gr[current_mouse_index][0] == 1) {
@@ -181,12 +180,15 @@ if (mode == 0) {
 			new_mouse_loc[0][0] = mouse_location.x;
 			new_mouse_loc[0][1] = mouse_location.y;
 			int current_node_val = MiniMax(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
+			minmax_cost[mouse_location.x][mouse_location.y] = current_node_val;
 			if (max_node_val){
 				if(max_node_val < current_node_val){
 					max_node_val = current_node_val;
+					best_location = mouse_location;
 				}
 			} else {
 				max_node_val = current_node_val;
+				best_location = mouse_location;
 			}
 		}
 
@@ -196,12 +198,15 @@ if (mode == 0) {
 			new_mouse_loc[0][0] = mouse_location.x;
 			new_mouse_loc[0][1] = mouse_location.y;
 			int current_node_val = MiniMax(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
+			minmax_cost[mouse_location.x][mouse_location.y] = current_node_val;
 			if (max_node_val){
 				if(max_node_val < current_node_val){
 					max_node_val = current_node_val;
+					best_location = mouse_location;
 				}
 			} else {
 				max_node_val = current_node_val;
+				best_location = mouse_location;
 			}
 		}
 
@@ -211,12 +216,15 @@ if (mode == 0) {
 			new_mouse_loc[0][0] = mouse_location.x;
 			new_mouse_loc[0][1] = mouse_location.y;
 			int current_node_val = MiniMax(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
+			minmax_cost[mouse_location.x][mouse_location.y] = current_node_val;
 			if (max_node_val){
 				if(max_node_val < current_node_val){
 					max_node_val = current_node_val;
+					best_location = mouse_location;
 				}
 			} else {
 				max_node_val = current_node_val;
+				best_location = mouse_location;
 			}
 		}
 
@@ -226,14 +234,20 @@ if (mode == 0) {
 			new_mouse_loc[0][0] = mouse_location.x;
 			new_mouse_loc[0][1] = mouse_location.y;
 			int current_node_val = MiniMax(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
+			minmax_cost[mouse_location.x][mouse_location.y] = current_node_val;
 			if (max_node_val){
 				if(max_node_val < current_node_val){
 					max_node_val = current_node_val;
+					best_location = mouse_location;
 				}
 			} else {
 				max_node_val = current_node_val;
+				best_location = mouse_location;
 			}
 		}
+		// Update the path for the mouse
+		path[0][0] = best_location.x;
+		path[0][1] = best_location.y;
 		// Return the best option for the Mouse
 		return max_node_val;
 
