@@ -234,24 +234,102 @@ if (mode == 0) {
 				max_node_val = current_node_val;
 			}
 		}
+		// Return the best option for the Mouse
+		return max_node_val;
 
 
-
-	} else {
-		int nextAgentId = agentId + 1;
+	} 
+	
+	else {
+		// increment depth
 		int newDepth = depth + 1;
-		if (nextAgentId == cats){
-			nextAgentId = 0;
+		int newAgentId;
+		// If all the cats have made their move, pass the turn back to the mouse
+		if (agentId == cats) {
+			newAgentId = 0;
+		} else {
+			// Increase AgentId and Depth
+			newAgentId = agentId + 1;
 		}
 
-
-
-
-
-
-
-
+		// Get cat location index
+		int currentCat = agentId - 1;
+		int current_cat_index = get_graph_index(cat_loc[currentCat][0], cat_loc[currentCat][1]);
 		
+		// Store min value from available options
+		int min_node_val;
+		
+		// Array to store new cat location
+		int new_cat_loc[10][2];
+		for (int i = 0; i < cats; i++){
+			new_cat_loc[i][0] = cat_loc[i][0];
+			new_cat_loc[i][1] = cat_loc[i][1];
+		}
+
+		// Stuct to store current mouse location
+		struct graph_location cat_location = get_graph_location(current_cat_index);
+		
+		// Check Top
+		if (gr[current_cat_index][0] == 1) {
+			cat_location.y = cat_location.y - 1;
+			new_cat_loc[currentCat][0] = cat_location.x;
+			new_cat_loc[currentCat][1] = cat_location.y;
+			int current_node_val = MiniMax(gr, path, minmax_cost, new_cat_loc, cats, cheese_loc, cheeses, mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
+			if (min_node_val){
+				if(min_node_val > current_node_val){
+					min_node_val = current_node_val;
+				}
+			} else {
+				min_node_val = current_node_val;
+			}
+		}
+
+		// Check Right
+		if (gr[current_cat_index][1] == 1) {
+			cat_location.x = cat_location.x + 1;
+			new_cat_loc[currentCat][0] = cat_location.x;
+			new_cat_loc[currentCat][1] = cat_location.y;
+			int current_node_val = MiniMax(gr, path, minmax_cost, new_cat_loc, cats, cheese_loc, cheeses, mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
+			if (min_node_val){
+				if(min_node_val > current_node_val){
+					min_node_val = current_node_val;
+				}
+			} else {
+				min_node_val = current_node_val;
+			}
+		}
+
+		// Check Bottom
+		if (gr[current_cat_index][2] == 1) {
+			cat_location.y = cat_location.y + 1;
+			new_cat_loc[currentCat][0] = cat_location.x;
+			new_cat_loc[currentCat][1] = cat_location.y;
+			int current_node_val = MiniMax(gr, path, minmax_cost, new_cat_loc, cats, cheese_loc, cheeses, mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
+			if (min_node_val){
+				if(min_node_val > current_node_val){
+					min_node_val = current_node_val;
+				}
+			} else {
+				min_node_val = current_node_val;
+			}
+		}
+
+		// Check Left
+		if (gr[current_cat_index][3] == 1) {
+			cat_location.x = cat_location.x - 1;
+			new_cat_loc[currentCat][0] = cat_location.x;
+			new_cat_loc[currentCat][1] = cat_location.y;
+			int current_node_val = MiniMax(gr, path, minmax_cost, new_cat_loc, cats, cheese_loc, cheeses, mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
+			if (min_node_val){
+				if(min_node_val > current_node_val){
+					min_node_val = current_node_val;
+				}
+			} else {
+				min_node_val = current_node_val;
+			}
+		}
+		// return the best option for the cat
+		return min_node_val;	
 	}
 
 
