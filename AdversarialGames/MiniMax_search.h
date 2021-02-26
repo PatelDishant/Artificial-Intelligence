@@ -59,6 +59,10 @@ double MiniMax_Helper(double gr[graph_size][4], int path[1][2], double minmax_co
 	int mouse_loc[1][2], int mode, double (*utility)(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, int depth, 
 		double gr[graph_size][4]), int agentId, int depth, int maxDepth, double alpha, double beta, int prev_distance_to_cheese, int prev_distance_to_cat, int visited_nodes[size_X][size_Y]);
 
+double AlphaBetaPruning(double gr[graph_size][4], int path[1][2], double minmax_cost[size_X][size_Y], int cat_loc[10][2], int cats, int cheese_loc[10][2], int cheeses, int mouse_loc[1][2], 
+	int mode, double (*utility)(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, int depth, double gr[graph_size][4]), 
+	int agentId, int depth, int maxDepth, double alpha, double beta, int prev_distance_to_cheese, int prev_distance_to_cat, int visited_nodes[size_X][size_Y]);
+	
 int H_cost_nokitty(int x, int y, int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, double gr[graph_size][4]);
 
 #endif

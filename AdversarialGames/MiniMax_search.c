@@ -7,28 +7,27 @@ double MiniMax(double gr[graph_size][4], int path[1][2], double minmax_cost[size
 	int cheeses, int mouse_loc[1][2], int mode, double (*utility)(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, int depth, 
 	double gr[graph_size][4]), int agentId, int depth, int maxDepth, double alpha, double beta)
 {
-
-// Regular MiniMax
-if (mode == 0) {
 	// Get the distance to the closest cheese and closest cat, given the initial configuration
 	int initial_distance_cheese = distanceToClosestItem(mouse_loc, cheese_loc, cheeses);
 	int initial_distance_cat = distanceToClosestItem(mouse_loc, cat_loc, cats);
-	
+
+	// Initialize empty array of visited nodes
 	int visited_nodes[size_X][size_Y] = {0};
-	// Call the helper function that uses extra parameters
-	return MiniMax_Helper(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, mouse_loc, mode, utility, agentId, depth, maxDepth, alpha, beta, initial_distance_cheese, initial_distance_cat, visited_nodes);
-}
-// Alpha-Beta Pruning
-else if (mode == 1) {
 
-}
+	// Regular MiniMax
+	if (mode == 0) {
+		return MiniMax_Helper(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, mouse_loc, mode, utility, agentId, depth, maxDepth, alpha, beta, initial_distance_cheese, initial_distance_cat, visited_nodes);
+	}
+	// Alpha-Beta Pruning
+	else if (mode == 1) {
+		return AlphaBetaPruning(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, mouse_loc, mode, utility, agentId, depth, maxDepth, alpha, beta, initial_distance_cheese, initial_distance_cat, visited_nodes);
+	}
 
-else {
-	printf("\nSelect a valid mode (0 or 1)");
-}
+	else {
+		printf("\nSelect a valid mode (0 or 1)");
+	}
 
-return(0.0);
-
+	return(0.0);
 }
 
 int checkForTerminal(int mouse_loc[1][2],int cat_loc[10][2],int cheese_loc[10][2],int cats,int cheeses)
@@ -463,6 +462,287 @@ double MiniMax_Helper(double gr[graph_size][4], int path[1][2], double minmax_co
 }
 
 
+/**
+ * AlphaBetaPruning is a very similar function to MiniMax Helper
+ * It stops traversing the tree (prunes) when alpha >= beta
+ **/
+double AlphaBetaPruning(double gr[graph_size][4], int path[1][2], double minmax_cost[size_X][size_Y], int cat_loc[10][2], int cats, int cheese_loc[10][2], int cheeses, int mouse_loc[1][2], 
+	int mode, double (*utility)(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, int depth, double gr[graph_size][4]), 
+	int agentId, int depth, int maxDepth, double alpha, double beta, int prev_distance_to_cheese, int prev_distance_to_cat, int visited_nodes[size_X][size_Y]) {
+	
+	// Return utility cost if we've reached max depth or terminal point
+	if (depth == maxDepth || checkForTerminal(mouse_loc, cat_loc, cheese_loc, cats, cheeses) == 1){
+		// return first_utility_function(cat_loc, cheese_loc, mouse_loc, cats, cheeses, depth, gr, prev_distance_to_cheese, prev_distance_to_cat);
+		return second_utility_function(cat_loc, cheese_loc, mouse_loc, cats, cheeses, depth, gr);
+	}
+
+	// Agent is Mouse
+	if (agentId == 0) {
+		
+		// Declare variables to keep track of data
+		int max_node_val = -9999;
+		int newAgentId = 1;
+		int newDepth = depth + 1;
+
+		// Array to store new mouse location
+		int new_mouse_loc[1][2];
+		// Struct to store the best location (i.e. best move for the mouse)
+		struct graph_location best_location;
+		// Get mouse location index
+		int current_mouse_index = get_graph_index(mouse_loc[0][0], mouse_loc[0][1]);
+		// Stuct to store mouse location
+		struct graph_location mouse_location = get_graph_location(current_mouse_index);
+
+		// Check if mouse can move up
+		if (gr[current_mouse_index][0] == 1 && visited_nodes[mouse_location.x][mouse_location.y - 1] == 0 && alpha < beta) {
+			// New coordinates for the mouse
+			mouse_location.y = mouse_location.y - 1;
+			new_mouse_loc[0][0] = mouse_location.x;
+			new_mouse_loc[0][1] = mouse_location.y;
+			visited_nodes[mouse_location.x][mouse_location.y] = 1;
+			
+			// Recursively check AlphaBetaPruning for moving the mouse up
+			int current_node_val = AlphaBetaPruning(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, 
+				mode, utility, newAgentId, newDepth, maxDepth, alpha, beta, prev_distance_to_cheese, prev_distance_to_cat, visited_nodes);
+
+			// Update the minimax_cost array
+			minmax_cost[mouse_location.x][mouse_location.y] = current_node_val;
+
+			// Compare current_node_val with max_node_val
+			if(max_node_val < current_node_val){
+				max_node_val = current_node_val;
+				best_location = mouse_location;
+			}
+
+			// Update alpha, if max_node_value > alpha
+			if (alpha < max_node_val){
+				alpha = max_node_val;
+			}		
+		}
+
+		// Check if mouse can move right
+		if (gr[current_mouse_index][1] == 1 && visited_nodes[mouse_location.x + 1][mouse_location.y] == 0 && alpha < beta) {
+			// New coordinates for the mouse
+			mouse_location.x = mouse_location.x + 1;
+			new_mouse_loc[0][0] = mouse_location.x;
+			new_mouse_loc[0][1] = mouse_location.y;
+			visited_nodes[mouse_location.x][mouse_location.y] = 1;
+
+			// Recursively check AlphaBetaPruning for moving the mouse right
+			int current_node_val = AlphaBetaPruning(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, 
+				mode, utility, newAgentId, newDepth, maxDepth, alpha, beta, prev_distance_to_cheese, prev_distance_to_cat, visited_nodes);
+
+			// Update the minimax_cost array
+			minmax_cost[mouse_location.x][mouse_location.y] = current_node_val;
+
+			// Compare current_node_val with max_node_val
+			if(max_node_val < current_node_val){
+				max_node_val = current_node_val;
+				best_location = mouse_location;
+			}
+
+			// Update alpha, if max_node_value > alpha
+			if (alpha < max_node_val){
+				alpha = max_node_val;
+			}	
+		}
+
+		// Check if mouse can move bottom
+		if (gr[current_mouse_index][2] == 1 && visited_nodes[mouse_location.x][mouse_location.y + 1] == 0 && alpha < beta) {
+			// New coordinates for the mouse
+			mouse_location.y = mouse_location.y + 1;
+			new_mouse_loc[0][0] = mouse_location.x;
+			new_mouse_loc[0][1] = mouse_location.y;
+			visited_nodes[mouse_location.x][mouse_location.y] = 1;
+
+			// Recursively check AlphaBetaPruning for moving the mouse bottom
+			int current_node_val = AlphaBetaPruning(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, 
+				mode, utility, newAgentId, newDepth, maxDepth, alpha, beta, prev_distance_to_cheese, prev_distance_to_cat, visited_nodes);
+			
+			// Update the minimax_cost array
+			minmax_cost[mouse_location.x][mouse_location.y] = current_node_val;
+
+			// Compare current_node_val with max_node_val
+			if(max_node_val < current_node_val){
+				max_node_val = current_node_val;
+				best_location = mouse_location;
+			}
+
+			// Update alpha, if max_node_value > alpha
+			if (alpha < max_node_val){
+				alpha = max_node_val;
+			}	
+		}
+
+		// Check if mouse can move left
+		if (gr[current_mouse_index][3] == 1 && visited_nodes[mouse_location.x - 1][mouse_location.y] == 0 && alpha < beta) {
+			// New coordinates for the mouse
+			mouse_location.x = mouse_location.x - 1;
+			new_mouse_loc[0][0] = mouse_location.x;
+			new_mouse_loc[0][1] = mouse_location.y;
+			visited_nodes[mouse_location.x][mouse_location.y] = 1;
+			
+			// Recursively check AlphaBetaPruning for moving the mouse left
+			int current_node_val = AlphaBetaPruning(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, 
+				mode, utility, newAgentId, newDepth, maxDepth, alpha, beta, prev_distance_to_cheese, prev_distance_to_cat, visited_nodes);
+			
+			// Update the minimax_cost array
+			minmax_cost[mouse_location.x][mouse_location.y] = current_node_val;
+
+			// Compare current_node_val with max_node_val
+			if(max_node_val < current_node_val){
+				max_node_val = current_node_val;
+				best_location = mouse_location;
+			}
+
+			// Update alpha, if max_node_value > alpha
+			if (alpha < max_node_val){
+				alpha = max_node_val;
+			}	
+		}
+		
+		// Update the path for the mouse
+		path[0][0] = best_location.x;
+		path[0][1] = best_location.y;
+		// Return the best option for the Mouse
+		return max_node_val;
+	} 
+	
+	// Agent is Cat
+	else {
+		// Increment depth
+		int newDepth = depth + 1;
+		int newAgentId;
+
+		// If all the cats have made their move, pass the turn back to the mouse
+		if (agentId == cats) {
+			newAgentId = 0;
+		} else {
+			// Increase AgentId 
+			newAgentId = agentId + 1;
+		}
+
+		// Get cat location index
+		int currentCat = agentId - 1;
+		int current_cat_index = get_graph_index(cat_loc[currentCat][0], cat_loc[currentCat][1]);
+		
+		// Store min value from available options
+		int min_node_val;
+		
+		// Array to store new cat location
+		int new_cat_loc[10][2];
+		for (int i = 0; i < cats; i++){
+			new_cat_loc[i][0] = cat_loc[i][0];
+			new_cat_loc[i][1] = cat_loc[i][1];
+		}
+
+		// Stuct to store current mouse location
+		struct graph_location cat_location = get_graph_location(current_cat_index);
+		
+		// Check if cat can move up
+		if (gr[current_cat_index][0] == 1 && alpha < beta) {
+			// Initialize min node value to a really large number
+			min_node_val = 9999;
+			// New coordinates for the cat
+			cat_location.y = cat_location.y - 1;
+			new_cat_loc[currentCat][0] = cat_location.x;
+			new_cat_loc[currentCat][1] = cat_location.y;
+			
+			// Recursively check AlphaBetaPruning for moving the cat up
+			int current_node_val = AlphaBetaPruning(gr, path, minmax_cost, new_cat_loc, cats, cheese_loc, cheeses, mouse_loc,
+				 mode, utility, newAgentId, newDepth, maxDepth, alpha, beta, prev_distance_to_cheese, prev_distance_to_cat, visited_nodes);
+			
+			// Ensure agent (cat) picks the smallest value (minimizes)
+			if(min_node_val > current_node_val){
+				min_node_val = current_node_val;
+			}
+
+			// update beta if min_node_val < beta
+			if(beta > min_node_val){
+				beta = min_node_val;
+			}
+			
+		}
+
+		// Check if cat can move right
+		if (gr[current_cat_index][1] == 1 && alpha < beta) {
+			// Initialize min node value to a really large number
+			min_node_val = 9999;
+			// New coordinates for the cat
+			cat_location.x = cat_location.x + 1;
+			new_cat_loc[currentCat][0] = cat_location.x;
+			new_cat_loc[currentCat][1] = cat_location.y;
+			
+			// Recursively check AlphaBetaPruning for moving the cat right
+			int current_node_val = AlphaBetaPruning(gr, path, minmax_cost, new_cat_loc, cats, cheese_loc, cheeses, mouse_loc, 
+				mode, utility, newAgentId, newDepth, maxDepth, alpha, beta, prev_distance_to_cheese, prev_distance_to_cat, visited_nodes);
+			
+			// Ensure agent (cat) picks the smallest value (minimizes)
+			if(min_node_val > current_node_val){
+				min_node_val = current_node_val;
+			}
+
+			// update beta if min_node_val < beta
+			if(beta > min_node_val){
+				beta = min_node_val;
+			}
+		}
+
+		// Check if cat can move bottom
+		if (gr[current_cat_index][2] == 1 && alpha < beta) {
+			// Initialize min node value to a really large number
+			min_node_val = 9999;
+			// New coordinates for the cat
+			cat_location.y = cat_location.y + 1;
+			new_cat_loc[currentCat][0] = cat_location.x;
+			new_cat_loc[currentCat][1] = cat_location.y;
+			
+			// Recursively check AlphaBetaPruning for moving the cat bottom
+			int current_node_val = AlphaBetaPruning(gr, path, minmax_cost, new_cat_loc, cats, cheese_loc, cheeses, mouse_loc, 
+				mode, utility, newAgentId, newDepth, maxDepth, alpha, beta, prev_distance_to_cheese, prev_distance_to_cat, visited_nodes);
+			
+			// Ensure agent (cat) picks the smallest value (minimizes)
+			if(min_node_val > current_node_val){
+				min_node_val = current_node_val;
+			}
+
+			// update beta if min_node_val < beta
+			if(beta > min_node_val){
+				beta = min_node_val;
+			}
+		}
+
+		// Check if cat can move left
+		if (gr[current_cat_index][3] == 1 && alpha < beta) {
+			// Initialize min node value to a really large number
+			min_node_val = 9999;
+			// New coordinates for the cat
+			cat_location.x = cat_location.x - 1;
+			new_cat_loc[currentCat][0] = cat_location.x;
+			new_cat_loc[currentCat][1] = cat_location.y;
+			
+			// Recursively check AlphaBetaPruning for moving the cat left
+			int current_node_val = AlphaBetaPruning(gr, path, minmax_cost, new_cat_loc, cats, cheese_loc, cheeses, mouse_loc, 
+				mode, utility, newAgentId, newDepth, maxDepth, alpha, beta, prev_distance_to_cheese, prev_distance_to_cat, visited_nodes);
+			
+			// Ensure agent (cat) picks the smallest value (minimizes)
+			if(min_node_val > current_node_val){
+				min_node_val = current_node_val;
+			}
+
+			// update beta if min_node_val < beta
+			if(beta > min_node_val){
+				beta = min_node_val;
+			}
+		}
+		// return the best option for the cat
+		return min_node_val;	
+	}
+}
+
+/**
+ * H_cost_nokitty used in Assignment 1
+ **/ 
 int H_cost_nokitty(int x, int y, int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, double gr[graph_size][4])
 {
 	struct graph_location location;
