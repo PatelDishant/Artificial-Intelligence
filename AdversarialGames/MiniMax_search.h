@@ -51,12 +51,15 @@ int calculate_manhattan_distance(struct graph_location p1, struct graph_location
 
 int distanceToClosestItem(int mouse_loc[1][2], int item_loc[10][2], int num_items);
 
-double new_utility(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, int depth, double gr[graph_size][4], int prev_distance_cheese, int prev_distance_cat);
+double first_utility_function(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, int depth, double gr[graph_size][4], int prev_distance_cheese, int prev_distance_cat);
 
 double second_utility_function(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, int depth, double gr[graph_size][4]);
 
-double MiniMax_Helper(double gr[graph_size][4], int path[1][2], double minmax_cost[size_X][size_Y], int cat_loc[10][2], int cats, int cheese_loc[10][2], int cheeses, int mouse_loc[1][2], int mode, double (*utility)(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, int depth, double gr[graph_size][4]), int agentId, int depth, int maxDepth, double alpha, double beta, int prev_distance_to_cheese, int prev_distance_to_cat, int visited_nodes[size_X][size_Y]);
+double MiniMax_Helper(double gr[graph_size][4], int path[1][2], double minmax_cost[size_X][size_Y], int cat_loc[10][2], int cats, int cheese_loc[10][2], int cheeses, 
+	int mouse_loc[1][2], int mode, double (*utility)(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, int depth, 
+		double gr[graph_size][4]), int agentId, int depth, int maxDepth, double alpha, double beta, int prev_distance_to_cheese, int prev_distance_to_cat, int visited_nodes[size_X][size_Y]);
 
+int H_cost_nokitty(int x, int y, int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, double gr[graph_size][4]);
 
 #endif
 
