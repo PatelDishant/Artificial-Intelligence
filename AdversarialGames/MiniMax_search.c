@@ -570,7 +570,7 @@ double AlphaBetaPruning(double gr[graph_size][4], int path[1][2], double minmax_
 		// Check if cat can move up
 		if (gr[current_cat_index][0] == 1 && alpha < beta) {
 			// Initialize min node value to a really large number
-			min_node_val = 9999;
+			min_node_val = 999999;
 			// New coordinates for the cat
 			cat_location.y = cat_location.y - 1;
 			new_cat_loc[currentCat][0] = cat_location.x;
@@ -595,7 +595,7 @@ double AlphaBetaPruning(double gr[graph_size][4], int path[1][2], double minmax_
 		// Check if cat can move right
 		if (gr[current_cat_index][1] == 1 && alpha < beta) {
 			// Initialize min node value to a really large number
-			min_node_val = 9999;
+			min_node_val = 999999;
 			// New coordinates for the cat
 			cat_location.x = cat_location.x + 1;
 			new_cat_loc[currentCat][0] = cat_location.x;
@@ -619,7 +619,7 @@ double AlphaBetaPruning(double gr[graph_size][4], int path[1][2], double minmax_
 		// Check if cat can move bottom
 		if (gr[current_cat_index][2] == 1 && alpha < beta) {
 			// Initialize min node value to a really large number
-			min_node_val = 9999;
+			min_node_val = 999999;
 			// New coordinates for the cat
 			cat_location.y = cat_location.y + 1;
 			new_cat_loc[currentCat][0] = cat_location.x;
@@ -643,7 +643,7 @@ double AlphaBetaPruning(double gr[graph_size][4], int path[1][2], double minmax_
 		// Check if cat can move left
 		if (gr[current_cat_index][3] == 1 && alpha < beta) {
 			// Initialize min node value to a really large number
-			min_node_val = 9999;
+			min_node_val = 999999;
 			// New coordinates for the cat
 			cat_location.x = cat_location.x - 1;
 			new_cat_loc[currentCat][0] = cat_location.x;
