@@ -155,198 +155,13 @@ double MiniMax(double gr[graph_size][4], int path[1][2], double minmax_cost[size
  ********************************************************************************************************/
 // Regular MiniMax
 if (mode == 0) {
+	int visited_nodes[size_X][size_Y] = {0};
+	// Get the distance to the closest cheese and closest cat, given the initial configuration
+	int initial_distance_cheese = distanceToClosestItem(mouse_loc, cheese_loc, cheeses);
+	int initial_distance_cat = distanceToClosestItem(mouse_loc, cat_loc, cats);
 	
-	if (depth == maxDepth || checkForTerminal(mouse_loc, cat_loc, cheese_loc, cats, cheeses) == 1){
-		return second_utility_function(cat_loc, cheese_loc, mouse_loc, cats, cheeses, depth, gr);
-	}
-	if (agentId == 0) {
-		// Get mouse location index
-		int current_mouse_index = get_graph_index(mouse_loc[0][0], mouse_loc[0][1]);
-		// Check possible moves
-		int max_node_val;
-		int newAgentId = 1;
-		int newDepth = depth + 1;
-		// Array to store new mouse location
-		int new_mouse_loc[1][2];
-		// Stuct to store current mouse location
-		struct graph_location mouse_location = get_graph_location(current_mouse_index);
-
-		// Struct to store the best location
-		struct graph_location best_location;
-		
-		// Check Top
-		if (gr[current_mouse_index][0] == 1) {
-			mouse_location.y = mouse_location.y - 1;
-			new_mouse_loc[0][0] = mouse_location.x;
-			new_mouse_loc[0][1] = mouse_location.y;
-			int current_node_val = MiniMax(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
-			minmax_cost[mouse_location.x][mouse_location.y] = current_node_val;
-			if (max_node_val){
-				if(max_node_val < current_node_val){
-					max_node_val = current_node_val;
-					best_location = mouse_location;
-				}
-			} else {
-				max_node_val = current_node_val;
-				best_location = mouse_location;
-			}
-		}
-
-		// Check Right
-		if (gr[current_mouse_index][1] == 1) {
-			mouse_location.x = mouse_location.x + 1;
-			new_mouse_loc[0][0] = mouse_location.x;
-			new_mouse_loc[0][1] = mouse_location.y;
-			int current_node_val = MiniMax(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
-			minmax_cost[mouse_location.x][mouse_location.y] = current_node_val;
-			if (max_node_val){
-				if(max_node_val < current_node_val){
-					max_node_val = current_node_val;
-					best_location = mouse_location;
-				}
-			} else {
-				max_node_val = current_node_val;
-				best_location = mouse_location;
-			}
-		}
-
-		// Check Bottom
-		if (gr[current_mouse_index][2] == 1) {
-			mouse_location.y = mouse_location.y + 1;
-			new_mouse_loc[0][0] = mouse_location.x;
-			new_mouse_loc[0][1] = mouse_location.y;
-			int current_node_val = MiniMax(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
-			minmax_cost[mouse_location.x][mouse_location.y] = current_node_val;
-			if (max_node_val){
-				if(max_node_val < current_node_val){
-					max_node_val = current_node_val;
-					best_location = mouse_location;
-				}
-			} else {
-				max_node_val = current_node_val;
-				best_location = mouse_location;
-			}
-		}
-
-		// Check Left
-		if (gr[current_mouse_index][3] == 1) {
-			mouse_location.x = mouse_location.x - 1;
-			new_mouse_loc[0][0] = mouse_location.x;
-			new_mouse_loc[0][1] = mouse_location.y;
-			int current_node_val = MiniMax(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
-			minmax_cost[mouse_location.x][mouse_location.y] = current_node_val;
-			if (max_node_val){
-				if(max_node_val < current_node_val){
-					max_node_val = current_node_val;
-					best_location = mouse_location;
-				}
-			} else {
-				max_node_val = current_node_val;
-				best_location = mouse_location;
-			}
-		}
-		// Update the path for the mouse
-		path[0][0] = best_location.x;
-		path[0][1] = best_location.y;
-		// Return the best option for the Mouse
-		return max_node_val;
-
-
-	} 
-	
-	else {
-		// increment depth
-		int newDepth = depth + 1;
-		int newAgentId;
-		// If all the cats have made their move, pass the turn back to the mouse
-		if (agentId == cats) {
-			newAgentId = 0;
-		} else {
-			// Increase AgentId and Depth
-			newAgentId = agentId + 1;
-		}
-
-		// Get cat location index
-		int currentCat = agentId - 1;
-		int current_cat_index = get_graph_index(cat_loc[currentCat][0], cat_loc[currentCat][1]);
-		
-		// Store min value from available options
-		int min_node_val;
-		
-		// Array to store new cat location
-		int new_cat_loc[10][2];
-		for (int i = 0; i < cats; i++){
-			new_cat_loc[i][0] = cat_loc[i][0];
-			new_cat_loc[i][1] = cat_loc[i][1];
-		}
-
-		// Stuct to store current mouse location
-		struct graph_location cat_location = get_graph_location(current_cat_index);
-		
-		// Check Top
-		if (gr[current_cat_index][0] == 1) {
-			cat_location.y = cat_location.y - 1;
-			new_cat_loc[currentCat][0] = cat_location.x;
-			new_cat_loc[currentCat][1] = cat_location.y;
-			int current_node_val = MiniMax(gr, path, minmax_cost, new_cat_loc, cats, cheese_loc, cheeses, mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
-			if (min_node_val){
-				if(min_node_val > current_node_val){
-					min_node_val = current_node_val;
-				}
-			} else {
-				min_node_val = current_node_val;
-			}
-		}
-
-		// Check Right
-		if (gr[current_cat_index][1] == 1) {
-			cat_location.x = cat_location.x + 1;
-			new_cat_loc[currentCat][0] = cat_location.x;
-			new_cat_loc[currentCat][1] = cat_location.y;
-			int current_node_val = MiniMax(gr, path, minmax_cost, new_cat_loc, cats, cheese_loc, cheeses, mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
-			if (min_node_val){
-				if(min_node_val > current_node_val){
-					min_node_val = current_node_val;
-				}
-			} else {
-				min_node_val = current_node_val;
-			}
-		}
-
-		// Check Bottom
-		if (gr[current_cat_index][2] == 1) {
-			cat_location.y = cat_location.y + 1;
-			new_cat_loc[currentCat][0] = cat_location.x;
-			new_cat_loc[currentCat][1] = cat_location.y;
-			int current_node_val = MiniMax(gr, path, minmax_cost, new_cat_loc, cats, cheese_loc, cheeses, mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
-			if (min_node_val){
-				if(min_node_val > current_node_val){
-					min_node_val = current_node_val;
-				}
-			} else {
-				min_node_val = current_node_val;
-			}
-		}
-
-		// Check Left
-		if (gr[current_cat_index][3] == 1) {
-			cat_location.x = cat_location.x - 1;
-			new_cat_loc[currentCat][0] = cat_location.x;
-			new_cat_loc[currentCat][1] = cat_location.y;
-			int current_node_val = MiniMax(gr, path, minmax_cost, new_cat_loc, cats, cheese_loc, cheeses, mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta);
-			if (min_node_val){
-				if(min_node_val > current_node_val){
-					min_node_val = current_node_val;
-				}
-			} else {
-				min_node_val = current_node_val;
-			}
-		}
-		// return the best option for the cat
-		return min_node_val;	
-	}
-
-
+	// Call the helper function that uses extra parameters
+	return MiniMax_Helper(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, mouse_loc, mode, utility, agentId, depth, maxDepth, alpha, beta, initial_distance_cheese, initial_distance_cat, visited_nodes);
 }
 // Alpha-Beta Pruning
 else if (mode == 1) {
@@ -356,11 +171,6 @@ else {
 	printf("\nSelect a valid mode (0 or 1)");
 }
  
- // Stub so that the code compiles/runs - This will be removed and replaced by your code!
-
- path[0][0]=mouse_loc[0][0];
- path[0][1]=mouse_loc[0][1];
-
  return(0.0);
 }
 
@@ -402,35 +212,10 @@ double utility(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], i
 //  return(1);   // <--- Obviously, this will be replaced by your computer utilities
 }
 
-
 double new_utility(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, int depth, double gr[graph_size][4], int prev_distance_cheese, int prev_distance_cat)
 {
- /*
-	This function computes and returns the utility value for a given game configuration.
-	As discussed in lecture, this should return a positive value for configurations that are 'good'
-	for the mouse, and a negative value for locations that are 'bad' for the mouse.
-
-	How to define 'good' and 'bad' is up to you. Note that you can write a utility function
-	that favours your mouse or favours the cats, but that would be a bad idea... (why?)
-
-	Input arguments:
-
-		cat_loc - Cat locations
-		cheese_loc - Cheese locations
-		mouse_loc - Mouse location
-		cats - # of cats
-		cheeses - # of cheeses
-		depth - current search depth
-		gr - The graph's adjacency list for the maze
-
-		These arguments are as described in A1. Do have a look at your solution!
- */
 	// Try changing to see performance
-	const int CONSTANT_FACTOR = 1;
 	double utility_cost;
-	// // Store constants for worse/best case scenarios
-	// const int LARGE_POSITIVE = graph_size;
-	// const int LARGE_NEGATIVE = -1 * graph_size;
 
 	int new_distance_cat = distanceToClosestItem(mouse_loc, cat_loc, cats);
 	int new_distance_cheese = distanceToClosestItem(mouse_loc, cheese_loc, cheeses);
@@ -440,8 +225,13 @@ double new_utility(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2
 	// Difference in Manhattan distance (mouse to cheese) from initial configuration to new configuration
 	int difference_in_cheese_distance = prev_distance_cheese - new_distance_cheese;
 
-	utility_cost = (CONSTANT_FACTOR * (difference_in_cat_distance)) + difference_in_cheese_distance;
-
+	if (new_distance_cat <= 1){
+		utility_cost = -999;
+	} else if (new_distance_cheese <= 1){
+		utility_cost = 999;
+	} else {
+		utility_cost = difference_in_cat_distance + difference_in_cheese_distance;
+	}
 	return utility_cost;
 }
 
@@ -531,6 +321,7 @@ int calculate_manhattan_distance(struct graph_location p1, struct graph_location
  * 
  **/
 int distanceToClosestItem(int mouse_loc[1][2], int item_loc[10][2], int num_items){
+
 	
 	// Store the mouse location
 	int mouse_index = get_graph_index(mouse_loc[0][0], mouse_loc[0][1]);
@@ -563,4 +354,260 @@ int distanceToClosestItem(int mouse_loc[1][2], int item_loc[10][2], int num_item
 
 	distance_to_closest_item = distances[min_item_index];
 	return distance_to_closest_item;
+}
+
+double MiniMax_Helper(double gr[graph_size][4], int path[1][2], double minmax_cost[size_X][size_Y], int cat_loc[10][2], int cats, int cheese_loc[10][2], int cheeses, int mouse_loc[1][2], int mode, double (*utility)(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, int depth, double gr[graph_size][4]), int agentId, int depth, int maxDepth, double alpha, double beta, int prev_distance_to_cheese, int prev_distance_to_cat, int visited_nodes[size_X][size_Y]){
+	
+	// Return utility cost if we've reached max depth or terminal point
+	if (depth == maxDepth || checkForTerminal(mouse_loc, cat_loc, cheese_loc, cats, cheeses) == 1){
+		return new_utility(cat_loc, cheese_loc, mouse_loc, cats, cheeses, depth, gr, prev_distance_to_cheese, prev_distance_to_cat);
+	}
+	
+	// Haven't reached max depth or terminal point yet
+	// Agent is mouse
+	if (agentId == 0) {
+		// Declare variables to keep track of data
+		int max_node_val;
+		int newAgentId = 1;
+		int newDepth = depth + 1;
+
+		// Array to store new mouse location
+		int new_mouse_loc[1][2];
+		// Get mouse location index
+		int current_mouse_index = get_graph_index(mouse_loc[0][0], mouse_loc[0][1]);
+		// Stuct to store mouse location
+		struct graph_location mouse_location = get_graph_location(current_mouse_index);
+
+		// Struct to store the best location (i.e. best move for the mouse)
+		struct graph_location best_location;
+		
+		// Check if mouse can move up
+		if (gr[current_mouse_index][0] == 1 && visited_nodes[mouse_location.x][mouse_location.y - 1] == 0) {
+			// New coordinates for the mouse
+			mouse_location.y = mouse_location.y - 1;
+			new_mouse_loc[0][0] = mouse_location.x;
+			new_mouse_loc[0][1] = mouse_location.y;
+			visited_nodes[mouse_location.x][mouse_location.y] = 1;
+			
+			// Recursively check MiniMax_Helper for moving the mouse up
+			int current_node_val = MiniMax_Helper(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta, prev_distance_to_cheese, prev_distance_to_cat, visited_nodes);
+
+			// Update the minimax_cost array
+			minmax_cost[mouse_location.x][mouse_location.y] = current_node_val;
+
+			// Ensure agent (mouse) picks the largest value (maximizes)
+			// Update best location
+			if (max_node_val){
+				if(max_node_val < current_node_val){
+					max_node_val = current_node_val;
+					best_location = mouse_location;
+				}
+			} else {
+				max_node_val = current_node_val;
+				best_location = mouse_location;
+			}
+		}
+
+		// Check if mouse can move right
+		if (gr[current_mouse_index][1] == 1 && visited_nodes[mouse_location.x + 1][mouse_location.y] == 0) {
+			// New coordinates for the mouse
+			mouse_location.x = mouse_location.x + 1;
+			new_mouse_loc[0][0] = mouse_location.x;
+			new_mouse_loc[0][1] = mouse_location.y;
+			visited_nodes[mouse_location.x][mouse_location.y] = 1;
+			
+			// Recursively check MiniMax_Helper for moving the mouse right
+			int current_node_val = MiniMax_Helper(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta, prev_distance_to_cheese, prev_distance_to_cat, visited_nodes);
+
+			// Update the minimax_cost array
+			minmax_cost[mouse_location.x][mouse_location.y] = current_node_val;
+
+			// Ensure agent (mouse) picks the largest value (maximizes)
+			// Update best location
+			if (max_node_val){
+				if(max_node_val < current_node_val){
+					max_node_val = current_node_val;
+					best_location = mouse_location;
+				}
+			} else {
+				max_node_val = current_node_val;
+				best_location = mouse_location;
+			}
+		}
+
+		// Check if mouse can move bottom
+		if (gr[current_mouse_index][2] == 1 && visited_nodes[mouse_location.x][mouse_location.y + 1] == 0) {
+			// New coordinates for the mouse
+			mouse_location.y = mouse_location.y + 1;
+			new_mouse_loc[0][0] = mouse_location.x;
+			new_mouse_loc[0][1] = mouse_location.y;
+			visited_nodes[mouse_location.x][mouse_location.y] = 1;
+
+			// Recursively check MiniMax_Helper for moving the mouse bottom
+			int current_node_val = MiniMax_Helper(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta, prev_distance_to_cheese, prev_distance_to_cat, visited_nodes);
+			
+			// Update the minimax_cost array
+			minmax_cost[mouse_location.x][mouse_location.y] = current_node_val;
+
+			// Ensure agent (mouse) picks the largest value (maximizes)
+			// Update best location
+			if (max_node_val){
+				if(max_node_val < current_node_val){
+					max_node_val = current_node_val;
+					best_location = mouse_location;
+				}
+			} else {
+				max_node_val = current_node_val;
+				best_location = mouse_location;
+			}
+		}
+
+		// Check if mouse can move left
+		if (gr[current_mouse_index][3] == 1 && visited_nodes[mouse_location.x - 1][mouse_location.y] == 0) {
+			// New coordinates for the mouse
+			mouse_location.x = mouse_location.x - 1;
+			new_mouse_loc[0][0] = mouse_location.x;
+			new_mouse_loc[0][1] = mouse_location.y;
+			visited_nodes[mouse_location.x][mouse_location.y] = 1;
+			
+			// Recursively check MiniMax_Helper for moving the mouse left
+			int current_node_val = MiniMax_Helper(gr, path, minmax_cost, cat_loc, cats, cheese_loc, cheeses, new_mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta, prev_distance_to_cheese, prev_distance_to_cat, visited_nodes);
+			
+			// Update the minimax_cost array
+			minmax_cost[mouse_location.x][mouse_location.y] = current_node_val;
+
+			// Ensure agent (mouse) picks the largest value (maximizes)
+			// Update best location
+			if (max_node_val){
+				if(max_node_val < current_node_val){
+					max_node_val = current_node_val;
+					best_location = mouse_location;
+				}
+			} else {
+				max_node_val = current_node_val;
+				best_location = mouse_location;
+			}
+		}
+		// Update the path for the mouse
+		path[0][0] = best_location.x;
+		path[0][1] = best_location.y;
+		// Return the best option for the Mouse
+		return max_node_val;
+
+
+	} 
+	
+	else {
+		// Increment depth
+		int newDepth = depth + 1;
+		int newAgentId;
+
+		// If all the cats have made their move, pass the turn back to the mouse
+		if (agentId == cats) {
+			newAgentId = 0;
+		} else {
+			// Increase AgentId 
+			newAgentId = agentId + 1;
+		}
+
+		// Get cat location index
+		int currentCat = agentId - 1;
+		int current_cat_index = get_graph_index(cat_loc[currentCat][0], cat_loc[currentCat][1]);
+		
+		// Store min value from available options
+		int min_node_val;
+		
+		// Array to store new cat location
+		int new_cat_loc[10][2];
+		for (int i = 0; i < cats; i++){
+			new_cat_loc[i][0] = cat_loc[i][0];
+			new_cat_loc[i][1] = cat_loc[i][1];
+		}
+
+		// Stuct to store current mouse location
+		struct graph_location cat_location = get_graph_location(current_cat_index);
+		
+		// Check if cat can move up
+		if (gr[current_cat_index][0] == 1) {
+			// New coordinates for the cat
+			cat_location.y = cat_location.y - 1;
+			new_cat_loc[currentCat][0] = cat_location.x;
+			new_cat_loc[currentCat][1] = cat_location.y;
+			
+			// Recursively check MiniMax_Helper for moving the cat up
+			int current_node_val = MiniMax_Helper(gr, path, minmax_cost, new_cat_loc, cats, cheese_loc, cheeses, mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta, prev_distance_to_cheese, prev_distance_to_cat, visited_nodes);
+			
+			// Ensure agent (cat) picks the smallest value (minimizes)
+			if (min_node_val){
+				if(min_node_val > current_node_val){
+					min_node_val = current_node_val;
+				}
+			} else {
+				min_node_val = current_node_val;
+			}
+		}
+
+		// Check if cat can move right
+		if (gr[current_cat_index][1] == 1) {
+			// New coordinates for the cat
+			cat_location.x = cat_location.x + 1;
+			new_cat_loc[currentCat][0] = cat_location.x;
+			new_cat_loc[currentCat][1] = cat_location.y;
+			
+			// Recursively check MiniMax_Helper for moving the cat right
+			int current_node_val = MiniMax_Helper(gr, path, minmax_cost, new_cat_loc, cats, cheese_loc, cheeses, mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta, prev_distance_to_cheese, prev_distance_to_cat, visited_nodes);
+			
+			// Ensure agent (cat) picks the smallest value (minimizes)
+			if (min_node_val){
+				if(min_node_val > current_node_val){
+					min_node_val = current_node_val;
+				}
+			} else {
+				min_node_val = current_node_val;
+			}
+		}
+
+		// Check if cat can move bottom
+		if (gr[current_cat_index][2] == 1) {
+			// New coordinates for the cat
+			cat_location.y = cat_location.y + 1;
+			new_cat_loc[currentCat][0] = cat_location.x;
+			new_cat_loc[currentCat][1] = cat_location.y;
+			
+			// Recursively check MiniMax_Helper for moving the cat bottom
+			int current_node_val = MiniMax_Helper(gr, path, minmax_cost, new_cat_loc, cats, cheese_loc, cheeses, mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta, prev_distance_to_cheese, prev_distance_to_cat, visited_nodes);
+			
+			// Ensure agent (cat) picks the smallest value (minimizes)
+			if (min_node_val){
+				if(min_node_val > current_node_val){
+					min_node_val = current_node_val;
+				}
+			} else {
+				min_node_val = current_node_val;
+			}
+		}
+
+		// Check if cat can move left
+		if (gr[current_cat_index][3] == 1) {
+			
+			// New coordinates for the cat
+			cat_location.x = cat_location.x - 1;
+			new_cat_loc[currentCat][0] = cat_location.x;
+			new_cat_loc[currentCat][1] = cat_location.y;
+			
+			// Recursively check MiniMax_Helper for moving the cat left
+			int current_node_val = MiniMax_Helper(gr, path, minmax_cost, new_cat_loc, cats, cheese_loc, cheeses, mouse_loc, mode, utility, newAgentId, newDepth, maxDepth, alpha, beta, prev_distance_to_cheese, prev_distance_to_cat, visited_nodes);
+			
+			// Ensure agent (cat) picks the smallest value (minimizes)
+			if (min_node_val){
+				if(min_node_val > current_node_val){
+					min_node_val = current_node_val;
+				}
+			} else {
+				min_node_val = current_node_val;
+			}
+		}
+		// return the best option for the cat
+		return min_node_val;	
+	}
 }
