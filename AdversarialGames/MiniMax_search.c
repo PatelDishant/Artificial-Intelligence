@@ -52,17 +52,17 @@ int checkForTerminal(int mouse_loc[1][2],int cat_loc[10][2],int cheese_loc[10][2
  ********************************************************************************************************/
 double utility(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, int depth, double gr[graph_size][4])
 {
-	int utility_cost;
-	// Store constants for worse/best case scenarios
-	const int LARGE_POSITIVE = graph_size;
-	const int LARGE_NEGATIVE = -1 * graph_size;
-	// Get the distance to closest cheese using helper function
-	int distance_to_closest_cheese = distanceToClosestItem(mouse_loc, cheese_loc, cheeses);
-	// Get the distance to closest cat using helper function
-	int distance_to_closest_cat = distanceToClosestItem(mouse_loc, cat_loc, cats);
+	double utility_cost;
 
-	if (distance_to_closest_cat <= 1) {
-		utility_cost = LARGE_NEGATIVE;
+	int distance_to_cat = distanceToClosestItem(mouse_loc, cat_loc, cats);
+	int distance_to_cheese = distanceToClosestItem(mouse_loc, cheese_loc, cheeses);
+
+	if (distance_to_cat <= 1){
+		utility_cost = -500;
+	} else if (distance_to_cheese <= 1){
+		utility_cost = 500;
+	} else {
+		utility_cost = (10 * distance_to_cheese) - (5 * distance_to_cat);
 	}
 	return utility_cost;
 }
@@ -109,75 +109,9 @@ double second_utility_function(int cat_loc[10][2], int cheese_loc[10][2], int mo
 }
 
  /********************************************************************************************************
-  ******************************************* Helper Functions *******************************************
+  ***************************************** New Helper Functions *****************************************
  ********************************************************************************************************/
-/**
- * Convert the location to an index in the graph and return it
- **/
-int get_graph_index(int x, int y)
-{
-	return x + (y * size_X);
-}
 
-/**
- * Convert the index to a location in the graph and return it
- **/
-struct graph_location get_graph_location(int index)
-{
-	struct graph_location location;
-	// Corresponding (x,y) location
-	location.x = index % size_X;
-	location.y = index / size_Y;
-	return location;
-}
-
-/**
- * Calculate the Manhattan distance of two points on a graph  
- **/
-int calculate_manhattan_distance(struct graph_location p1, struct graph_location p2)
-{
-	const int LEN_SIDE_A = abs(p2.x - p1.x);
-	const int LEN_SIDE_B = abs(p2.y - p1.y);
-	return (int) (LEN_SIDE_A + LEN_SIDE_B);
-}
-/**
- * Calculate the distance to closest cheese or closest cat
- * 
- **/
-int distanceToClosestItem(int mouse_loc[1][2], int item_loc[10][2], int num_items){
-
-	// Store the mouse location
-	int mouse_index = get_graph_index(mouse_loc[0][0], mouse_loc[0][1]);
-	struct graph_location mouse_location = get_graph_location(mouse_index);
-	
-	// Store the closest cheese/cat location
-	struct graph_location min_item_location;
-
-	int distances[num_items]; // stores Manhattan distance from location of mouse to each cheese/cat
-	int min_item_index = 0; // Index to help remember the min index. Initially first cheese/cat
-	int distance_to_closest_item;
-
-	for (int item_index = 0; item_index < num_items; item_index++)
-	{
-		struct graph_location item_location;
-		item_location.x = item_loc[item_index][0];
-		item_location.y = item_loc[item_index][1];
-
-		distances[item_index] = calculate_manhattan_distance(mouse_location, item_location);
-		
-		// Get the min value from distances array
-		if (item_index != min_item_index && distances[item_index] < distances[min_item_index])
-		{
-			min_item_index = item_index;
-		}
-	}
-
-	min_item_location.x = item_loc[min_item_index][0];
-	min_item_location.y = item_loc[min_item_index][1];
-
-	distance_to_closest_item = distances[min_item_index];
-	return distance_to_closest_item;
-}
 
 /**
  * This function is used by MiniMax 
@@ -190,7 +124,7 @@ double MiniMax_Helper(double gr[graph_size][4], int path[1][2], double minmax_co
 	
 	// Return utility cost if we've reached max depth or terminal point
 	if (depth == maxDepth || checkForTerminal(mouse_loc, cat_loc, cheese_loc, cats, cheeses) == 1){
-		return first_utility_function(cat_loc, cheese_loc, mouse_loc, cats, cheeses, depth, gr);
+		return utility(cat_loc, cheese_loc, mouse_loc, cats, cheeses, depth, gr);
 		// return second_utility_function(cat_loc, cheese_loc, mouse_loc, cats, cheeses, depth, gr);
 	}
 	
@@ -470,7 +404,7 @@ double AlphaBetaPruning(double gr[graph_size][4], int path[1][2], double minmax_
 	
 	// Return utility cost if we've reached max depth or terminal point
 	if (depth == maxDepth || checkForTerminal(mouse_loc, cat_loc, cheese_loc, cats, cheeses) == 1){
-		return first_utility_function(cat_loc, cheese_loc, mouse_loc, cats, cheeses, depth, gr);
+		return utility(cat_loc, cheese_loc, mouse_loc, cats, cheeses, depth, gr);
 		// return second_utility_function(cat_loc, cheese_loc, mouse_loc, cats, cheeses, depth, gr);
 	}
 
@@ -734,6 +668,79 @@ double AlphaBetaPruning(double gr[graph_size][4], int path[1][2], double minmax_
 	}
 }
 
+
+
+ /********************************************************************************************************
+  ********************************** Helper Functions From Assignment 1 **********************************
+ ********************************************************************************************************/
+
+/**
+ * Convert the location to an index in the graph and return it
+ **/
+int get_graph_index(int x, int y)
+{
+	return x + (y * size_X);
+}
+
+/**
+ * Convert the index to a location in the graph and return it
+ **/
+struct graph_location get_graph_location(int index)
+{
+	struct graph_location location;
+	// Corresponding (x,y) location
+	location.x = index % size_X;
+	location.y = index / size_Y;
+	return location;
+}
+
+/**
+ * Calculate the Manhattan distance of two points on a graph  
+ **/
+int calculate_manhattan_distance(struct graph_location p1, struct graph_location p2)
+{
+	const int LEN_SIDE_A = abs(p2.x - p1.x);
+	const int LEN_SIDE_B = abs(p2.y - p1.y);
+	return (int) (LEN_SIDE_A + LEN_SIDE_B);
+}
+/**
+ * Calculate the distance to closest cheese or closest cat
+ * 
+ **/
+int distanceToClosestItem(int mouse_loc[1][2], int item_loc[10][2], int num_items){
+
+	// Store the mouse location
+	int mouse_index = get_graph_index(mouse_loc[0][0], mouse_loc[0][1]);
+	struct graph_location mouse_location = get_graph_location(mouse_index);
+	
+	// Store the closest cheese/cat location
+	struct graph_location min_item_location;
+
+	int distances[num_items]; // stores Manhattan distance from location of mouse to each cheese/cat
+	int min_item_index = 0; // Index to help remember the min index. Initially first cheese/cat
+	int distance_to_closest_item;
+
+	for (int item_index = 0; item_index < num_items; item_index++)
+	{
+		struct graph_location item_location;
+		item_location.x = item_loc[item_index][0];
+		item_location.y = item_loc[item_index][1];
+
+		distances[item_index] = calculate_manhattan_distance(mouse_location, item_location);
+		
+		// Get the min value from distances array
+		if (item_index != min_item_index && distances[item_index] < distances[min_item_index])
+		{
+			min_item_index = item_index;
+		}
+	}
+
+	min_item_location.x = item_loc[min_item_index][0];
+	min_item_location.y = item_loc[min_item_index][1];
+
+	distance_to_closest_item = distances[min_item_index];
+	return distance_to_closest_item;
+}
 /**
  * H_cost_nokitty used in Assignment 1
  **/ 
