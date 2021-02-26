@@ -58,9 +58,9 @@ double utility(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], i
 	int distance_to_cheese = distanceToClosestItem(mouse_loc, cheese_loc, cheeses);
 
 	if (distance_to_cat <= 1){
-		utility_cost = -500;
+		utility_cost = -50000;
 	} else if (distance_to_cheese <= 1){
-		utility_cost = 500;
+		utility_cost = 50000;
 	} else {
 		utility_cost = (10 * distance_to_cheese) - (5 * distance_to_cat);
 	}
@@ -140,6 +140,8 @@ double MiniMax_Helper(double gr[graph_size][4], int path[1][2], double minmax_co
 		int new_mouse_loc[1][2];
 		// Struct to store the best location (i.e. best move for the mouse)
 		struct graph_location best_location;
+		best_location.x = mouse_loc[0][0];
+		best_location.y = mouse_loc[0][1];
 		// Get mouse location index
 		int current_mouse_index = get_graph_index(mouse_loc[0][0], mouse_loc[0][1]);
 
