@@ -125,6 +125,7 @@ double MiniMax_Helper(double gr[graph_size][4], int path[1][2], double minmax_co
 	// Return utility cost if we've reached max depth or terminal point
 	if (depth == maxDepth || checkForTerminal(mouse_loc, cat_loc, cheese_loc, cats, cheeses) == 1){
 		return utility(cat_loc, cheese_loc, mouse_loc, cats, cheeses, depth, gr);
+		// return first_utility_function(cat_loc, cheese_loc, mouse_loc, cats, cheeses, depth, gr);
 		// return second_utility_function(cat_loc, cheese_loc, mouse_loc, cats, cheeses, depth, gr);
 	}
 	
@@ -405,6 +406,7 @@ double AlphaBetaPruning(double gr[graph_size][4], int path[1][2], double minmax_
 	// Return utility cost if we've reached max depth or terminal point
 	if (depth == maxDepth || checkForTerminal(mouse_loc, cat_loc, cheese_loc, cats, cheeses) == 1){
 		return utility(cat_loc, cheese_loc, mouse_loc, cats, cheeses, depth, gr);
+		// return first_utility_function(cat_loc, cheese_loc, mouse_loc, cats, cheeses, depth, gr);
 		// return second_utility_function(cat_loc, cheese_loc, mouse_loc, cats, cheeses, depth, gr);
 	}
 
