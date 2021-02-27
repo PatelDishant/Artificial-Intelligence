@@ -10,17 +10,17 @@ mark.
 
 ________________________________________________
 
-Student Name 1 (last, first):
+Student Name 1 (last, first): Patel, Dishant
 
-Student Name 2 (last, first):
+Student Name 2 (last, first): Najmeddini, Omid
 
-Student number 1:
+Student number 1: 999013749
 
-Student number 2:
+Student number 2: 1002358441
 
-UTORid 1:
+UTORid 1: pateldi7
 
-UTORid 2:
+UTORid 2: najmeddi
 
 READ THIS AND SIGN YOUR NAME AT THE END:
 
@@ -28,7 +28,7 @@ READ THIS AND SIGN YOUR NAME AT THE END:
 honesty and plaguarism. All work submitted as part
 of this assignment is my own.
 
-	Signed: _(student 1 name here)__	_(student 2 name here)__
+	Signed: Dishant Patel	Omid Najmeddini
 
 
 (-5 marks for failing to provide the identifying
@@ -44,25 +44,103 @@ but explain carefully when needed.
      a single, meaningful value. Convince us that your utility
      makes sense!
 
+     The design we had in mind for the utility function is as follows: Firstly, 
+     we obtain the Manhattan distance from where the mouse currently is to the 
+     closest cat and the closest cheese in the maze. Secondly, given that the 
+     distance from the mouse to the cat is at most one title away, then this 
+     is a configuration of the maze that is favorable to the cat. As such, we 
+     assign a utility cost that is a very small number, in our case -500. 
+     Otherwise, if the distance from the mouse to the closest cheese is at 
+     most one tile away, the configuration is favorable to the mouse, so we 
+     assign a large value of 500 as the utility cost. For any other distance 
+     from the mouse to the cat/cheese, we want either agent to factor in the 
+     distance from the mouse to the cheese more than the distance from the mouse 
+     to the cat, since winning or losing for the agents depends on it more. That 
+     is we want our mouse to prioritize getting the cheese over staying far from 
+     the mouse to win. Conversely, for the closest cat, it means preventing the 
+     mouse from getting to the cheese so the game wouldn't end before the cat can 
+     get to the mouse. Hence, we multiply the distance to the cheese with a factor 
+     of 10, then multiply the distance to the cat with a factor of 5, and finally, 
+     take the difference of the two values. 
+
 2 .- (2 marks) Ignoring computation time, what is the effect of
      search depth (number of turns) on the chances of the mouse
-     winning the game. 
+     winning the game.
+
+     The effect when the search depth is relatively low is that we are limited by 
+     how many moves (that can be legally performed by each agent) we can evaluate 
+     using MiniMax. The tree will consist of a few turns before the proper utility 
+     cost is percolated up to the root. What this is means for the mouse is that it 
+     will decide its moves on limited information on how well it's winning or losing. 
+     For example, for the turns, MiniMax was able to get the utility cost, the 
+     mouse may try to move to a particular tile that may lead to the mouse winning, 
+     but in actuality, it may be the exact opposite since MiniMax wasn't able to 
+     expand that far down in the search tree. Therefore if the search depth was 
+     increased, he the mouse would have a higher chance of winning since the utility 
+     cost is returned to the root of the tree more accurately reflects the moves that 
+     will lead to the mouse winning.
 
 3 .- (2 marks) What situations will cause your mouse to lose?
      can these be fixed either with the utility function, or
      by changing the search depth? if so, how?
 
+     Aside from the cats' intelligence, most situations that will cause our mouse to 
+     lose involve looping around a particular number of tiles due to more than one cat 
+     being equidistant to the mouse, leading to the mouse being eventually eaten. In our 
+     case, our utility function doesn't properly go to the nearest cheese how we ideally 
+     designed. However, it can be fixed and so it can be continually improved such that 
+     the utility function returns the cost for a given game state. Assuming everything is 
+     implemented accordingly, given some initial configuration, is it still possible that 
+     the utility cost returned to the root is negative (i.e. the mouse loses)? Of course, 
+     because there are situations where the mouse just has no hope of winning due to the 
+     number and locations of cats and cheeses with respect to the mouse. For example, the 
+     game starts with 4 cats surrounding the mouse or cheese at their neighboring tiles. 
+     So in these difficult cases, increasing the search depth wouldn't make a difference 
+     if the mouse loses by moving anywhere.
+
 4 .- (2 marks) Compare cats with smartness=.8 against cats with
      smartness=1 - which are harder for your mouse to beat?
      why do you think that is?
+     
+     It's harder for our mouse to beat cats with smartness=1 more than cats with smartness=.8. 
+     We believe this is due to cats' smartness being related to how quickly they can corner 
+     our cat. Given the mouse loses, though both levels of smartness lead to this outcome,
+     when the smartness is set to .8, we noticed that our mouse has more time to "explore" before 
+     reacting to the cat(s) getting closer. So when we set the smartness to 1 the cats were quick 
+     to corner the mouse. So we conclude that the difference is correlated to how the cat agent 
+     prunes more nodes in its search tree, resulting in fewer moves to be evaluated, and/or 
+     the cost differs from the utility function being used. In a way, it's able to better measure 
+     where the mouse might be going and effectively forces the cat to move in a particular section 
+     of the maze where the mouse is very unlikely of escaping.
 
 5 .- (2 marks) Can the mouse be made unbeatable by having an
      optimal utility function?
 
+     Though there exists AI that can beat games similar to this one, an optimal utility function 
+     may render the mouse unbeatable in practice. This is because the maze can have many different 
+     game states of varying maze size, several cats and cheeses, location of the agents, the 
+     number/location of walls, etc. Furthermore, the MiniMax procedure plays a role in the success 
+     of the mouse. The utility function, even if it's optimal, can only be fetched from nodes at a 
+     certain depth in the search tree. So we cannot definitively guarantee that the mouse will 
+     win even if the utility cost of the root node implies the mouse will win, because there's always 
+     the chance that the utility cost for the root ends up being in favor of the cat being the winner.
+
 6 .- (2 bonus marks) Could a human playing the game in place
       of the mouse do better than your code? (yes, no, and
       a reasonable explanation of why)
-
+     
+     With the way our code currently is, yes a human can do better than our 
+     code because our mouse makes many unnecessary moves to get away from the cat, 
+     or stays in a single place, whereas a human will at least move to the cheese
+     instantly if they can. If our utility function was ideal to our design then 
+     a human would have a hard time being better than the mouse. This because a 
+     human will play this game based on recognized patterns and experience from 
+     playing it often, therefore not only will they have to recall the best 
+     strategy for winning, but they must also come up with it fast, and adapt it 
+     based on the current game. Our ideal code, however, though not as complex as
+     a humans strategy still performs many operations extremely quickly, therefore 
+     can evaluate different possibilities for the game and use logic to pick 
+     the move that results in the best outcome.  
 _____________________________________________________
 
 Mark with an 'x' where appropriate. If something is only
@@ -72,12 +150,24 @@ doesn't work, or what problems exist.
 	Complete/Working	Partial		Not done
 
 Utility
- function
+ function                  x   
 
-MiniMax
+MiniMax      x                  
 
 Alpha/Beta
- pruning
+ pruning     x
+
+
+We created MiniMaxHelper and AlphaBeta pruning functions take the same input parameters as
+MiniMax, we just modified it a bit to worker cleaner with our implementation. As such, our 
+utility function has fewer parameters as a result of removing parameters from the original MiniMax. 
+We kept it separate to test different utilities, but they are the same arguments/parameters. Our 
+utility function works in the sense that we can evaluate a given configuration of a maze
+in terms of the distance between agents and also measure how close they are to the winning/
+losing. What doesn't work is how we implemented the design for our utility function, since the
+actual results of a game are off from our expected results. We have tried implementing different 
+utility functions that vary in the definition of what configuration is good for an agent. However, 
+they result in the mouse having strange behavior at times and moving to the tile with the max cost.
 _____________________________________________________
 
 Marking:
