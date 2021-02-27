@@ -51,7 +51,7 @@ int calculate_manhattan_distance(struct graph_location p1, struct graph_location
 
 int distanceToClosestItem(int mouse_loc[1][2], int item_loc[10][2], int num_items);
 
-double first_utility_function(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, int depth, double gr[graph_size][4], int prev_distance_cheese, int prev_distance_cat);
+double first_utility_function(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, int depth, double gr[graph_size][4]);
 
 double second_utility_function(int cat_loc[10][2], int cheese_loc[10][2], int mouse_loc[1][2], int cats, int cheeses, int depth, double gr[graph_size][4]);
 
