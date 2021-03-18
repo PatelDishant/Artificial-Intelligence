@@ -132,7 +132,7 @@ int QLearn_action(double gr[max_graph_size][4], int mouse_pos[1][2], int cats[5]
   // Generate random number to determine whether
   // to choose from a random action or from the Q-table
   double rand_num;
-  srand(((unsigned) time(NULL)));
+  srand((unsigned) time(NULL));
   rand_num = (double) rand() / (double) RAND_MAX;
 
   // ---------- Choose RANDOM valid action ---------- //
@@ -142,7 +142,7 @@ int QLearn_action(double gr[max_graph_size][4], int mouse_pos[1][2], int cats[5]
     while (random_dir_valid == 0) {
 
       // Choose a random direction
-      srand(((unsigned) time(NULL)));
+      srand((unsigned) time(NULL));
       int rand_action = (rand() % 3);
 
       // Get the mouse index
@@ -213,6 +213,7 @@ double QLearn_reward(double gr[max_graph_size][4], int mouse_pos[1][2], int cats
     reward = 1;
   }
 
+  // If not a terminal point, return a really small value
   else {
     reward = __DBL_EPSILON__;
   }
