@@ -46,11 +46,10 @@ void QLearn_update(int s, int a, double r, int s_new, double *QTable)
    Details on how states are used for indexing into the QTable are shown
    below, in the comments for QLearn_action. Be sure to read those as well!
  */
- 
-  /***********************************************************************************************
-   * TO DO: Complete this function
-   ***********************************************************************************************/
 
+  double expected_reward_s_new = max_expected_reward(s_new, QTable);
+  double expected_reward_s = *(QTable + (4 * s_new) + a);
+  *(QTable + (4 * s) + a) = alpha * (r + (lambda * expected_reward_s_new) - expected_reward_s);
   
 }
 
@@ -126,11 +125,49 @@ int QLearn_action(double gr[max_graph_size][4], int mouse_pos[1][2], int cats[5]
      NOTE: There is only one cat and once cheese, so you only need to use cats[0][:] and cheeses[0][:]
    */
   
-  /***********************************************************************************************
-   * TO DO: Complete this function
-   ***********************************************************************************************/  
+ 
+  // Store the action to be returned in this variable
+  int action;
 
-  return(0);		// <--- of course, you will change this!
+  // Generate random number to determine whether
+  // to choose from a random action or from the Q-table
+  double rand_num;
+  srand(((unsigned) time(NULL)));
+  rand_num = (double) rand() / (double) RAND_MAX;
+
+  // ---------- Choose RANDOM valid action ---------- //
+  if (pct > rand_num) {
+    int random_dir_valid = 0;
+    // Keep looping till a VALID random direction is chosen
+    while (random_dir_valid == 0) {
+
+      // Choose a random direction
+      srand(((unsigned) time(NULL)));
+      int rand_action = (rand() % 3);
+
+      // Get the mouse index
+      int mouse_index = get_graph_index(mouse_pos[0][0], mouse_pos[0][1], size_X);
+      // Check if the mouse can move in the chosen direction
+      if (gr[mouse_index][rand_action] == 1) {
+        random_dir_valid = 1;
+        action = rand_action;
+      }
+    }
+  }
+
+  // ---------- Choose OPTIMAL valid action from Q-table ---------- //
+  else {
+    int i = mouse_pos[0][0];
+    int j = mouse_pos[0][1];
+    int k = cats[0][0];
+    int l = cats[0][1];
+    int m = cheeses[0][0];
+    int n = cheeses[0][1];
+    int state = (i+(j*size_X)) + ((k+(l*size_X))*graph_size) + ((m+(n*size_X))*graph_size*graph_size);
+    action = max_expected_action(state, QTable);
+  }
+
+  return action;
   
 }
 
@@ -150,11 +187,37 @@ double QLearn_reward(double gr[max_graph_size][4], int mouse_pos[1][2], int cats
     This function should return a maximim/minimum reward when the mouse eats/gets eaten respectively.      
    */
 
-   /***********************************************************************************************
-   * TO DO: Complete this function
-   ***********************************************************************************************/ 
+  // Variable to store the reward
+  double reward;
 
-  return(0);		// <--- of course, you will change this as well!     
+  // Mouse, Cat, and Cheese all on the same position
+  if (mouse_pos[0][0] == cats[0][0] && 
+      mouse_pos[0][1] == cats[0][1] && 
+      mouse_pos[0][0] == cheeses[0][0] &&
+      mouse_pos[0][1] == cheeses[0][1]) 
+  {
+    reward = -10;
+  }
+  
+  // Mouse, and Cat on the same position
+  else if (mouse_pos[0][0] == cats[0][0] && 
+           mouse_pos[0][1] == cats[0][1]) 
+  {
+    reward = -11;
+  }
+  
+  // Mouse, and Cheese on the same position
+  else if (mouse_pos[0][0] == cheeses[0][0] &&
+           mouse_pos[0][1] == cheeses[0][1]) 
+  {
+    reward = 1;
+  }
+
+  else {
+    reward = __DBL_EPSILON__;
+  }
+
+  return reward;     
 }
 
 void feat_QLearn_update(double gr[max_graph_size][4],double weights[25], double reward, int mouse_pos[1][2], int cats[5][2], int cheeses[5][2], int size_X, int graph_size)
@@ -260,3 +323,53 @@ void maxQsa(double gr[max_graph_size][4],double weights[25],int mouse_pos[1][2],
  *  Add any functions needed to compute your features below 
  *                 ---->  THIS BOX <-----
  * *************************************************************************************************/
+
+/**
+ * Convert the location to an index in the graph and return it
+ **/
+int get_graph_index(int x, int y, int size_X)
+{
+	return x + (y * size_X);
+}
+
+/**
+ * Determine the max expected reward given state s using 
+ * Q-table
+ **/
+double max_expected_reward(int state, double *QTable) {
+  // Initialize the max_expected_reward with lowest value
+  double max_expected_reward = (double) -__INT_MAX__;
+  // Iterate through the actions to find the
+  // action with max expected reward
+  for (int action = 0; action < 4; action++) {
+    double current_expected_reward = *(QTable + (4 * state) + action);
+    // Check if larger than current max value
+    if (current_expected_reward > max_expected_reward) {
+      max_expected_reward = current_expected_reward;
+    }
+  }
+  return max_expected_reward;
+}
+
+/**
+ * Determine the max expected action given state s using 
+ * Q-table
+ **/
+int max_expected_action(int state, double *QTable) {
+  // Initialize the max_expected_action with 0
+  int max_expected_action = 0;
+  // Initialize the max_expected_reward with lowest value
+  double max_expected_reward = (double) -__INT_MAX__;
+
+  // Iterate through the actions to find the
+  // action with max expected reward
+  for (int action = 0; action < 4; action++) {
+    double current_expected_reward = *(QTable + (4 * state) + action);
+    // Check if larger than current max value
+    if (current_expected_reward > max_expected_reward) {
+      max_expected_reward = current_expected_reward;
+      max_expected_action = action;
+    }
+  }
+  return max_expected_action;
+}
