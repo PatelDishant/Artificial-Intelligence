@@ -133,17 +133,17 @@ int QLearn_action(double gr[max_graph_size][4], int mouse_pos[1][2], int cats[5]
   // to choose from a random action or from the Q-table
   double rand_num;
   srand((unsigned) time(NULL));
-  rand_num = (double) rand() / (double) RAND_MAX;
+  rand_num = rand() % 100;
 
   // ---------- Choose RANDOM valid action ---------- //
-  if (rand_num > pct) {
+  if (rand_num > (pct * 100)) {
     int random_dir_valid = 0;
     // Keep looping till a VALID random direction is chosen
     while (random_dir_valid == 0) {
 
       // Choose a random direction
       srand((unsigned) time(NULL));
-      int rand_action = (rand() % 4);
+      int rand_action = rand() % 4;
 
       // Get the mouse index
       int mouse_index = get_graph_index(mouse_pos[0][0], mouse_pos[0][1], size_X);
@@ -297,17 +297,17 @@ int feat_QLearn_action(double gr[max_graph_size][4],double weights[25], int mous
   // to choose from a random action or from the Q-table
   double rand_num;
   srand((unsigned) time(NULL));
-  rand_num = (double) rand() / (double) RAND_MAX;
+  rand_num = rand() % 100;
 
   // ---------- Choose RANDOM valid action ---------- //
-  if (rand_num > pct) {
+  if (rand_num > (pct * 100)) {
     int random_dir_valid = 0;
     // Keep looping till a VALID random direction is chosen
     while (random_dir_valid == 0) {
 
       // Choose a random direction
       srand((unsigned) time(NULL));
-      int rand_action = (rand() % 4);
+      int rand_action = rand() % 4;
 
       // Get the mouse index
       int mouse_index = get_graph_index(mouse_pos[0][0], mouse_pos[0][1], size_X);
@@ -565,7 +565,7 @@ int distanceToClosestItem(int mouse_loc[1][2], int item_loc[5][2], int num_items
   for (int i = 0; i < num_items; i++) {
     distances[i] = __INT_MAX__;
   }
-  
+
 	int min_item_index = 0; // Index to help remember the min index. Initially first cheese/cat
 	int distance_to_closest_item;
 
