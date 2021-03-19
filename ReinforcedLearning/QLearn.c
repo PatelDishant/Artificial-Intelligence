@@ -415,6 +415,8 @@ void maxQsa(double gr[max_graph_size][4],double weights[25],int mouse_pos[1][2],
           x = x - 1;
           break;
         default:
+          printf("Wrong direction selected");
+          exit(1);
           break;
       }
 
@@ -558,6 +560,12 @@ int distanceToClosestItem(int mouse_loc[1][2], int item_loc[5][2], int num_items
 	struct graph_location min_item_location;
 
 	int distances[num_items]; // stores Manhattan distance from location of mouse to each cheese/cat
+
+  // Initialize array to really large values
+  for (int i = 0; i < num_items; i++) {
+    distances[i] = __INT_MAX__;
+  }
+  
 	int min_item_index = 0; // Index to help remember the min index. Initially first cheese/cat
 	int distance_to_closest_item;
 
