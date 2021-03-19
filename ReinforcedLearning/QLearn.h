@@ -51,5 +51,6 @@ int checkForGoal(int x, int y, int pos[5][2]);
 int get_graph_index(int x, int y, int size_X);
 double max_expected_reward(int state, double *QTable);
 int max_expected_action(int state, double *QTable);
+void get_mouse_pos(int mouse_index, int action, int new_mouse_pos[1][2], int size_X);
 #endif
 

@@ -233,10 +233,22 @@ void feat_QLearn_update(double gr[max_graph_size][4],double weights[25], double 
     Your code must then evaluate the update and apply it to the weights in the weight array.    
    */
   
-   /***********************************************************************************************
-   * TO DO: Complete this function
-   ***********************************************************************************************/        
-      
+  // Initialize int array to store feature values
+  int features[25];
+  // Evaluate features
+  evaluateFeatures(gr, features, mouse_pos, cats, cheeses, size_X, graph_size);
+  // Get expected reward for state s
+  double qs = Qsa(weights, features);
+  // Variables to store max expected reward and action for s'
+  double *maxU;
+  int *maxA;
+  maxQsa(gr, weights, mouse_pos, cats, cheeses, size_X, graph_size, maxU, maxA);
+  double qs_new = *maxU;
+
+  // Use the formula to update the weights
+  for (int index = 0; index < numFeatures; index++) {
+    weights[index] += alpha * (reward + (lambda * qs_new) - qs) * features[index];
+  }      
 }
 
 int feat_QLearn_action(double gr[max_graph_size][4],double weights[25], int mouse_pos[1][2], int cats[5][2], int cheeses[5][2], double pct, int size_X, int graph_size)
@@ -255,11 +267,44 @@ int feat_QLearn_action(double gr[max_graph_size][4],double weights[25], int mous
     the maze.    
    */
 
-  /***********************************************************************************************
-   * TO DO: Complete this function
-   ***********************************************************************************************/        
+  // Store the action to be returned in this variable
+  int action;
 
-  return(0);		// <--- replace this while you're at it!
+  // Generate random number to determine whether
+  // to choose from a random action or from the Q-table
+  double rand_num;
+  srand((unsigned) time(NULL));
+  rand_num = (double) rand() / (double) RAND_MAX;
+
+  // ---------- Choose RANDOM valid action ---------- //
+  if (pct > rand_num) {
+    int random_dir_valid = 0;
+    // Keep looping till a VALID random direction is chosen
+    while (random_dir_valid == 0) {
+
+      // Choose a random direction
+      srand((unsigned) time(NULL));
+      int rand_action = (rand() % 3);
+
+      // Get the mouse index
+      int mouse_index = get_graph_index(mouse_pos[0][0], mouse_pos[0][1], size_X);
+      // Check if the mouse can move in the chosen direction
+      if (gr[mouse_index][rand_action] == 1) {
+        random_dir_valid = 1;
+        action = rand_action;
+      }
+    }
+  }
+
+  // ---------- Choose OPTIMAL valid action from Q-table ---------- //
+  else {
+    double *maxU;
+    int *maxA;
+    maxQsa(gr, weights, mouse_pos, cats, cheeses, size_X, graph_size, maxU, maxA);
+    action = *maxA;
+  }
+
+  return action;
 
 }
 
@@ -292,11 +337,14 @@ double Qsa(double weights[25], double features[25])
     Compute and return the Qsa value given the input features and current weights
    */
 
-  /***********************************************************************************************
-  * TO DO: Complete this function
-  ***********************************************************************************************/  
+  // Initialize the reward to 0
+  double reward = 0;
+  // Iterate through the features and sum w_i*f_i
+  for (int index = 0; index < numFeatures; index++) {
+    reward += weights[index] * features[index];
+  }  
   
-  return(0);		// <--- stub! compute and return the Qsa value
+  return reward;
 }
 
 void maxQsa(double gr[max_graph_size][4],double weights[25],int mouse_pos[1][2], int cats[5][2], int cheeses[5][2], int size_X, int graph_size, double *maxU, int *maxA)
@@ -309,13 +357,36 @@ void maxQsa(double gr[max_graph_size][4],double weights[25],int mouse_pos[1][2],
    You should make sure the function does not evaluate moves that would make the mouse walk through a
    wall. 
   */
+
+  int feat[25];
+  // Get the mouse index
+  int mouse_index = get_graph_index(mouse_pos[0][0], mouse_pos[0][1], size_X);
+
+  // Initial values 
+  int opt_action = 0;
+  double max_reward = 0;
+
+  // Iterate through the valid actions (directions) and get s'
+  for (int action = 0; action < 4; action++) {
+    if (gr[mouse_index][action] == 1) {
+      // Array to store new mouse position
+      int new_mouse_pos[1][2];
+      // Get new mouse position given the action
+      get_mouse_pos(mouse_index, action, new_mouse_pos, size_X);
+      // Evaluate features for s'
+      evaluateFeatures(gr, feat,  new_mouse_pos, cats, cheeses, size_X, graph_size);
+
+      // get current reward using function Qsa
+      double current_reward = Qsa(weights, feat);
+      if (max_reward < current_reward) {
+        max_reward = current_reward;
+        opt_action = action;
+      }
+    }
+  }
  
-   /***********************************************************************************************
-   * TO DO: Complete this function
-   ***********************************************************************************************/  
- 
-  *maxU=0;	// <--- stubs! your code will compute actual values for these two variables!
-  *maxA=0;
+  *maxU=max_reward;
+  *maxA=opt_action;
   return;
    
 }
@@ -373,4 +444,32 @@ int max_expected_action(int state, double *QTable) {
     }
   }
   return max_expected_action;
+}
+
+/**
+ * Get mouse position after moving, given index and action (direction)
+ **/
+void get_mouse_pos(int mouse_index, int action, int new_mouse_pos[1][2], int size_X) {
+  int x = mouse_index % size_X;
+  int y = mouse_index / size_X;
+
+  switch(action){
+    case 0:
+      y = y - 1;
+      break;
+    case 1: 
+      x = x + 1;
+      break;
+    case 2: 
+      y = y + 1;
+      break;
+    case 3: 
+      x = x - 1;
+      break;
+    default:
+      break;
+  }
+
+  new_mouse_pos[0][0] = x;
+  new_mouse_pos[0][1] = y;
 }
