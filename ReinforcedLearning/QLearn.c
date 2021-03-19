@@ -47,9 +47,9 @@ void QLearn_update(int s, int a, double r, int s_new, double *QTable)
    below, in the comments for QLearn_action. Be sure to read those as well!
  */
 
-  double expected_reward_s_new = max_expected_reward(s_new, QTable);
+  double max_expected_reward_s_new = max_expected_reward(s_new, QTable);
   double expected_reward_s = *(QTable + (4 * s_new) + a);
-  *(QTable + (4 * s) + a) = alpha * (r + (lambda * expected_reward_s_new) - expected_reward_s);
+  *(QTable + (4 * s) + a) = alpha * (r + (lambda * max_expected_reward_s_new) - expected_reward_s);
   
 }
 
@@ -136,14 +136,14 @@ int QLearn_action(double gr[max_graph_size][4], int mouse_pos[1][2], int cats[5]
   rand_num = (double) rand() / (double) RAND_MAX;
 
   // ---------- Choose RANDOM valid action ---------- //
-  if (pct > rand_num) {
+  if (rand_num > pct) {
     int random_dir_valid = 0;
     // Keep looping till a VALID random direction is chosen
     while (random_dir_valid == 0) {
 
       // Choose a random direction
       srand((unsigned) time(NULL));
-      int rand_action = (rand() % 3);
+      int rand_action = (rand() % 4);
 
       // Get the mouse index
       int mouse_index = get_graph_index(mouse_pos[0][0], mouse_pos[0][1], size_X);
@@ -157,14 +157,37 @@ int QLearn_action(double gr[max_graph_size][4], int mouse_pos[1][2], int cats[5]
 
   // ---------- Choose OPTIMAL valid action from Q-table ---------- //
   else {
+    // Get the values required to calculate state
     int i = mouse_pos[0][0];
     int j = mouse_pos[0][1];
     int k = cats[0][0];
     int l = cats[0][1];
     int m = cheeses[0][0];
     int n = cheeses[0][1];
+    // Determine the state
     int state = (i+(j*size_X)) + ((k+(l*size_X))*graph_size) + ((m+(n*size_X))*graph_size*graph_size);
-    action = max_expected_action(state, QTable);
+
+    // Initialize the max_expected_action with 0
+    int max_expected_action = 0;
+    // Initialize the max_expected_reward with lowest value
+    double max_expected_reward = (double) -__INT_MAX__;
+    // Get the mouse index
+    int mouse_index = get_graph_index(i, j, size_X);  
+    // Iterate through the different directions to determine 
+    // optimal action
+    for (int direction = 0; direction < 4; direction++) {
+      // Check if direction is valid 
+      if (gr[mouse_index][direction] == 1) {
+        double current_expected_reward = *(QTable + (4 * state) + direction);
+        // Check if larger than current max value
+        if (current_expected_reward > max_expected_reward) {
+          max_expected_reward = current_expected_reward;
+          max_expected_action = direction;
+        }
+      } 
+    }
+
+    action = max_expected_action;
   }
 
   return action;
@@ -215,7 +238,7 @@ double QLearn_reward(double gr[max_graph_size][4], int mouse_pos[1][2], int cats
 
   // If not a terminal point, return a really small value
   else {
-    reward = __DBL_EPSILON__;
+    reward = -__DBL_EPSILON__;
   }
 
   return reward;     
@@ -234,7 +257,7 @@ void feat_QLearn_update(double gr[max_graph_size][4],double weights[25], double 
    */
   
   // Initialize int array to store feature values
-  int features[25];
+  double features[25];
   // Evaluate features
   evaluateFeatures(gr, features, mouse_pos, cats, cheeses, size_X, graph_size);
   // Get expected reward for state s
@@ -277,14 +300,14 @@ int feat_QLearn_action(double gr[max_graph_size][4],double weights[25], int mous
   rand_num = (double) rand() / (double) RAND_MAX;
 
   // ---------- Choose RANDOM valid action ---------- //
-  if (pct > rand_num) {
+  if (rand_num > pct) {
     int random_dir_valid = 0;
     // Keep looping till a VALID random direction is chosen
     while (random_dir_valid == 0) {
 
       // Choose a random direction
       srand((unsigned) time(NULL));
-      int rand_action = (rand() % 3);
+      int rand_action = (rand() % 4);
 
       // Get the mouse index
       int mouse_index = get_graph_index(mouse_pos[0][0], mouse_pos[0][1], size_X);
@@ -324,10 +347,11 @@ void evaluateFeatures(double gr[max_graph_size][4],double features[25], int mous
    You can have up to 5 cats and up to 5 cheese chunks, and array entries for the remaining cats/cheese
    will have a value of -1 - check this when evaluating your features!
   */
-
-   /***********************************************************************************************
-   * TO DO: Complete this function
-   ***********************************************************************************************/      
+  int min_cat_dist = -distanceToClosestItem(mouse_pos, cats, 5, size_X);
+  int min_cheese_dist = distanceToClosestItem(mouse_pos,cheeses, 5, size_X);
+  features[0] = min_cat_dist;
+  features[1] = min_cheese_dist;
+        
    
 }
 
@@ -358,7 +382,7 @@ void maxQsa(double gr[max_graph_size][4],double weights[25],int mouse_pos[1][2],
    wall. 
   */
 
-  int feat[25];
+  double features[25];
   // Get the mouse index
   int mouse_index = get_graph_index(mouse_pos[0][0], mouse_pos[0][1], size_X);
 
@@ -372,12 +396,36 @@ void maxQsa(double gr[max_graph_size][4],double weights[25],int mouse_pos[1][2],
       // Array to store new mouse position
       int new_mouse_pos[1][2];
       // Get new mouse position given the action
-      get_mouse_pos(mouse_index, action, new_mouse_pos, size_X);
+      // get_mouse_pos(mouse_index, action, new_mouse_pos, size_X);
+
+      int x = mouse_pos[0][0];
+      int y = mouse_pos[0][1];
+
+      switch(action){
+        case 0:
+          y = y - 1;
+          break;
+        case 1: 
+          x = x + 1;
+          break;
+        case 2: 
+          y = y + 1;
+          break;
+        case 3: 
+          x = x - 1;
+          break;
+        default:
+          break;
+      }
+
+      new_mouse_pos[0][0] = x;
+      new_mouse_pos[0][1] = y;
+      
       // Evaluate features for s'
-      evaluateFeatures(gr, feat,  new_mouse_pos, cats, cheeses, size_X, graph_size);
+      evaluateFeatures(gr, features,  new_mouse_pos, cats, cheeses, size_X, graph_size);
 
       // get current reward using function Qsa
-      double current_reward = Qsa(weights, feat);
+      double current_reward = Qsa(weights, features);
       if (max_reward < current_reward) {
         max_reward = current_reward;
         opt_action = action;
@@ -402,6 +450,18 @@ void maxQsa(double gr[max_graph_size][4],double weights[25],int mouse_pos[1][2],
 int get_graph_index(int x, int y, int size_X)
 {
 	return x + (y * size_X);
+}
+
+/**
+ * Convert the index to a location in the graph and return it
+ **/
+struct graph_location get_graph_location(int index, int size_X)
+{
+	struct graph_location location;
+	// Corresponding (x,y) location
+	location.x = index % size_X;
+	location.y = index / size_X;
+	return location;
 }
 
 /**
@@ -473,3 +533,54 @@ void get_mouse_pos(int mouse_index, int action, int new_mouse_pos[1][2], int siz
   new_mouse_pos[0][0] = x;
   new_mouse_pos[0][1] = y;
 }
+
+/**
+ * Calculate the Manhattan distance of two points on a graph  
+ **/
+int calculate_manhattan_distance(struct graph_location p1, struct graph_location p2)
+{
+	const int LEN_SIDE_A = abs(p2.x - p1.x);
+	const int LEN_SIDE_B = abs(p2.y - p1.y);
+	return (int) (LEN_SIDE_A + LEN_SIDE_B);
+}
+
+/**
+ * Calculate the distance to closest cheese or closest cat
+ * 
+ **/
+int distanceToClosestItem(int mouse_loc[1][2], int item_loc[5][2], int num_items, int size_X) {
+
+	// Store the mouse location
+	int mouse_index = get_graph_index(mouse_loc[0][0], mouse_loc[0][1], size_X);
+	struct graph_location mouse_location = get_graph_location(mouse_index, size_X);
+	
+	// Store the closest cheese/cat location
+	struct graph_location min_item_location;
+
+	int distances[num_items]; // stores Manhattan distance from location of mouse to each cheese/cat
+	int min_item_index = 0; // Index to help remember the min index. Initially first cheese/cat
+	int distance_to_closest_item;
+
+  int item_index = 0;
+  while (item_index < num_items && (item_loc[item_index][0] != -1 && item_loc[item_index][1] != -1)) {
+    struct graph_location item_location;
+		item_location.x = item_loc[item_index][0];
+		item_location.y = item_loc[item_index][1];
+
+		distances[item_index] = calculate_manhattan_distance(mouse_location, item_location);
+		
+		// Get the min value from distances array
+		if (item_index != min_item_index && distances[item_index] < distances[min_item_index])
+		{
+			min_item_index = item_index;
+		}
+    item_index++;
+  }
+
+	min_item_location.x = item_loc[min_item_index][0];
+	min_item_location.y = item_loc[min_item_index][1];
+
+	distance_to_closest_item = distances[min_item_index];
+	return distance_to_closest_item;
+}
+

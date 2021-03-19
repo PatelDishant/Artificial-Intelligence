@@ -48,9 +48,17 @@ void expensiveFeature1(double gr[max_graph_size][4], int path[max_graph_size][2]
 int checkForGoal(int x, int y, int pos[5][2]);
 
 // If you need to add any function prototypes yourself, you can do so *below* this line.
+struct graph_location {
+	int x;
+	int y;
+};
 int get_graph_index(int x, int y, int size_X);
 double max_expected_reward(int state, double *QTable);
 int max_expected_action(int state, double *QTable);
 void get_mouse_pos(int mouse_index, int action, int new_mouse_pos[1][2], int size_X);
+int calculate_manhattan_distance(struct graph_location p1, struct graph_location p2);
+int distanceToClosestItem(int mouse_loc[1][2], int item_loc[5][2], int num_items, int size_X);
+struct graph_location get_graph_location (int index, int size_X);
+
 #endif
 
