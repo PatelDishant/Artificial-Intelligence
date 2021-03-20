@@ -136,9 +136,9 @@ int QLearn_action(double gr[max_graph_size][4], int mouse_pos[1][2], int cats[5]
   double rand_num;
   srand((unsigned) time(NULL));
   // rand_num = rand() % 100;
-  double c  = (rand() % 100) / 100.00;
+  double c  = (rand() % 101) / 100.00;
   // ---------- Choose RANDOM valid action ---------- //
-  if (c > pct) {      // Test with c <= pct as well
+  if (c > pct) {      
     // Create an array of all actions
     int num_valid_actions = 4;  // Assume all actions are valid
     // Create an array of valid actions that we will use to compute
@@ -147,7 +147,7 @@ int QLearn_action(double gr[max_graph_size][4], int mouse_pos[1][2], int cats[5]
     int curr_index = 0;
 
     // Loop through each action to check whether it's valid given this state
-    for(int a = 0; a < 4; a ++){
+    for(int a = 0; a < 4; a ++) {
       // Get the mouse index
       int mouse_index = get_graph_index(mouse_pos[0][0], mouse_pos[0][1], size_X);
       // Check if the mouse can move in the chosen direction
@@ -182,7 +182,7 @@ int QLearn_action(double gr[max_graph_size][4], int mouse_pos[1][2], int cats[5]
     int state = (i+(j*size_X)) + ((k+(l*size_X))*graph_size) + ((m+(n*size_X))*graph_size*graph_size);
 
     // Initialize the max_expected_action with 0
-    int max_expected_action = -5;
+    int max_expected_action = -2;
     // Initialize the max_expected_reward with lowest value
     double max_expected_reward = (double) -INFINITY;
     // Get the mouse index
@@ -205,7 +205,7 @@ int QLearn_action(double gr[max_graph_size][4], int mouse_pos[1][2], int cats[5]
   }
 
   // Check that action is a valid value
-  if (action < 0 || action > 3){
+  if (action < 0 || action > 3) {
     printf("Action not properly set [action=%d].\n", action);
     exit(1);
   }
@@ -238,14 +238,14 @@ double QLearn_reward(double gr[max_graph_size][4], int mouse_pos[1][2], int cats
       mouse_pos[0][0] == cheeses[0][0] &&
       mouse_pos[0][1] == cheeses[0][1]) 
   {
-    reward = -1000;
+    reward = -100;
   }
   
   // Mouse, and Cat on the same position
   else if (mouse_pos[0][0] == cats[0][0] && 
            mouse_pos[0][1] == cats[0][1]) 
   {
-    reward = -1100;
+    reward = -110;
   }
   
   // Mouse, and Cheese on the same position
@@ -257,7 +257,7 @@ double QLearn_reward(double gr[max_graph_size][4], int mouse_pos[1][2], int cats
 
   // If not a terminal point, return a really small value
   else {
-    reward = -0.1;
+    reward = -__DBL_EPSILON__;
   }
 
   return reward;     
