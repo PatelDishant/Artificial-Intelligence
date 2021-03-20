@@ -387,10 +387,21 @@ void evaluateFeatures(double gr[max_graph_size][4],double features[25], int mous
    You can have up to 5 cats and up to 5 cheese chunks, and array entries for the remaining cats/cheese
    will have a value of -1 - check this when evaluating your features!
   */
-  int min_cat_dist = -distanceToClosestItem(mouse_pos, cats, 5, size_X);
-  int min_cheese_dist = distanceToClosestItem(mouse_pos,cheeses, 5, size_X);
-  features[0] = min_cat_dist;
-  features[1] = min_cheese_dist;
+  const int MANHATTAN = 0;
+  const int EUCLIDEAN = 1;
+  double min_cat_dist_manhattan = distanceToClosestItem(mouse_pos, cats, 5, size_X, MANHATTAN);
+  double min_cheese_dist_manhattan = distanceToClosestItem(mouse_pos,cheeses, 5, size_X, MANHATTAN);
+  double min_cat_dist_euclidean = distanceToClosestItem(mouse_pos, cats, 5, size_X, EUCLIDEAN);
+  double min_cheese_dist_euclidean = distanceToClosestItem(mouse_pos,cheeses, 5, size_X, EUCLIDEAN);
+  double num_valid_actions = numValidActions(gr, mouse_pos, size_X);
+
+
+
+  features[0] = -100/(min_cat_dist_manhattan + 1);
+  features[1] = 10/(min_cheese_dist_manhattan + 1);
+  features[2] = -10/((min_cat_dist_euclidean + 1) * 2);
+  features[3] = 1/((min_cheese_dist_euclidean + 1) * 2);
+  features[4] = num_valid_actions;
         
    
 }
@@ -598,11 +609,22 @@ int calculate_manhattan_distance(struct graph_location p1, struct graph_location
 }
 
 /**
+ * Calculate the Euclidean distance of two points on graph
+ **/ 
+double calculate_euclidean_distance(struct graph_location p1, struct graph_location p2) {
+  const int LEN_SIDE_A = (p2.x - p1.x);
+	const int LEN_SIDE_B = (p2.y - p1.y);
+	return (double) sqrt((LEN_SIDE_A * LEN_SIDE_A) + (LEN_SIDE_B * LEN_SIDE_B));
+}
+
+/**
  * Calculate the distance to closest cheese or closest cat
  * 
  **/
-int distanceToClosestItem(int mouse_loc[1][2], int item_loc[5][2], int num_items, int size_X) {
+double distanceToClosestItem(int mouse_loc[1][2], int item_loc[5][2], int num_items, int size_X, int mode) {
 
+  const int MANHATTAN = 0;
+  const int EUCLIDEAN = 1;
 	// Store the mouse location
 	int mouse_index = get_graph_index(mouse_loc[0][0], mouse_loc[0][1], size_X);
 	struct graph_location mouse_location = get_graph_location(mouse_index, size_X);
@@ -610,15 +632,15 @@ int distanceToClosestItem(int mouse_loc[1][2], int item_loc[5][2], int num_items
 	// Store the closest cheese/cat location
 	struct graph_location min_item_location;
 
-	int distances[num_items]; // stores Manhattan distance from location of mouse to each cheese/cat
+	double distances[num_items]; // stores Manhattan distance from location of mouse to each cheese/cat
 
   // Initialize array to really large values
   for (int i = 0; i < num_items; i++) {
-    distances[i] = __INT_MAX__;
+    distances[i] = (double) __INT_MAX__;
   }
 
 	int min_item_index = 0; // Index to help remember the min index. Initially first cheese/cat
-	int distance_to_closest_item;
+	double distance_to_closest_item;
 
   int item_index = 0;
   while (item_index < num_items && (item_loc[item_index][0] != -1 && item_loc[item_index][1] != -1)) {
@@ -626,7 +648,11 @@ int distanceToClosestItem(int mouse_loc[1][2], int item_loc[5][2], int num_items
 		item_location.x = item_loc[item_index][0];
 		item_location.y = item_loc[item_index][1];
 
-		distances[item_index] = calculate_manhattan_distance(mouse_location, item_location);
+    if (mode == MANHATTAN) {
+		  distances[item_index] = calculate_manhattan_distance(mouse_location, item_location);
+    } else if (mode == EUCLIDEAN) {
+		  distances[item_index] = calculate_euclidean_distance(mouse_location, item_location);
+    }
 		
 		// Get the min value from distances array
 		if (item_index != min_item_index && distances[item_index] < distances[min_item_index])
@@ -643,3 +669,18 @@ int distanceToClosestItem(int mouse_loc[1][2], int item_loc[5][2], int num_items
 	return distance_to_closest_item;
 }
 
+/**
+ * Number of valid actions
+ */ 
+int numValidActions(double gr[max_graph_size][4], int mouse_pos[1][2], int size_X) {
+  int mouse_index = get_graph_index(mouse_pos[0][0], mouse_pos[0][1], size_X);
+  int num_valid_actions = 0;
+
+  for (int direction = 0; direction < 4; direction++) {
+    if (gr[mouse_index][direction] == 1) {
+      num_valid_actions += 1;
+    }
+  }
+   
+  return num_valid_actions;
+} 
