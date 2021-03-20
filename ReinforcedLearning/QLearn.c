@@ -47,10 +47,12 @@ void QLearn_update(int s, int a, double r, int s_new, double *QTable)
    below, in the comments for QLearn_action. Be sure to read those as well!
  */
 
+  // Find best action in s' using helper function max_expected_reward
   double max_expected_reward_s_new = max_expected_reward(s_new, QTable);
-  double expected_reward_s = *(QTable + (4 * s_new) + a);
-  *(QTable + (4 * s) + a) = alpha * (r + (lambda * max_expected_reward_s_new) - expected_reward_s);
-  
+  // Get the expected reward for action s from QTable
+  double expected_reward_s = *(QTable + (4 * s) + a);
+  // Update the value in QTable
+  *(QTable + (4 * s) + a) += alpha * (r + (lambda * max_expected_reward_s_new) - expected_reward_s);
 }
 
 int QLearn_action(double gr[max_graph_size][4], int mouse_pos[1][2], int cats[5][2], int cheeses[5][2], double pct, double *QTable, int size_X, int graph_size)
@@ -157,7 +159,6 @@ int QLearn_action(double gr[max_graph_size][4], int mouse_pos[1][2], int cats[5]
       }
     }
 
-
     // Choose a random direction
     srand((unsigned) time(NULL));
     int rand_action_index = rand() % num_valid_actions;
@@ -166,8 +167,6 @@ int QLearn_action(double gr[max_graph_size][4], int mouse_pos[1][2], int cats[5]
     // printf("Still finding valid direction.\n");
     // END DEBUG CODE
     action = valid_action_arr[rand_action_index];
-
-
   }
 
   // ---------- Choose OPTIMAL valid action from Q-table ---------- //
@@ -183,9 +182,9 @@ int QLearn_action(double gr[max_graph_size][4], int mouse_pos[1][2], int cats[5]
     int state = (i+(j*size_X)) + ((k+(l*size_X))*graph_size) + ((m+(n*size_X))*graph_size*graph_size);
 
     // Initialize the max_expected_action with 0
-    int max_expected_action = 0;
+    int max_expected_action = -5;
     // Initialize the max_expected_reward with lowest value
-    double max_expected_reward = (double) -__INT_MAX__;
+    double max_expected_reward = (double) -INFINITY;
     // Get the mouse index
     int mouse_index = get_graph_index(i, j, size_X);  
     // Iterate through the different directions to determine 
@@ -198,7 +197,7 @@ int QLearn_action(double gr[max_graph_size][4], int mouse_pos[1][2], int cats[5]
         if (current_expected_reward > max_expected_reward) {
           max_expected_reward = current_expected_reward;
           max_expected_action = direction;
-        }
+        } 
       } 
     }
 
@@ -239,26 +238,26 @@ double QLearn_reward(double gr[max_graph_size][4], int mouse_pos[1][2], int cats
       mouse_pos[0][0] == cheeses[0][0] &&
       mouse_pos[0][1] == cheeses[0][1]) 
   {
-    reward = -10;
+    reward = -1000;
   }
   
   // Mouse, and Cat on the same position
   else if (mouse_pos[0][0] == cats[0][0] && 
            mouse_pos[0][1] == cats[0][1]) 
   {
-    reward = -11;
+    reward = -1100;
   }
   
   // Mouse, and Cheese on the same position
   else if (mouse_pos[0][0] == cheeses[0][0] &&
            mouse_pos[0][1] == cheeses[0][1]) 
   {
-    reward = 1;
+    reward = 10;
   }
 
   // If not a terminal point, return a really small value
   else {
-    reward = -__DBL_EPSILON__;
+    reward = -0.1;
   }
 
   return reward;     
@@ -492,7 +491,7 @@ struct graph_location get_graph_location(int index, int size_X)
  **/
 double max_expected_reward(int state, double *QTable) {
   // Initialize the max_expected_reward with lowest value
-  double max_expected_reward = (double) -__INT_MAX__;
+  double max_expected_reward = (double) -INFINITY;
   // Iterate through the actions to find the
   // action with max expected reward
   for (int action = 0; action < 4; action++) {
