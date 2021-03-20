@@ -192,10 +192,15 @@ int QLearn_action(double gr[max_graph_size][4], int mouse_pos[1][2], int cats[5]
       if (gr[mouse_index][direction] == 1) {
         double current_expected_reward = *(QTable + (4 * state) + direction);
         // Check if larger than current max value
-        if (current_expected_reward > max_expected_reward) {
+        if (current_expected_reward >= max_expected_reward) {
           max_expected_reward = current_expected_reward;
           max_expected_action = direction;
-        } 
+        } else {
+          if(max_expected_action == -2) {
+            max_expected_reward = current_expected_reward;
+            max_expected_action = direction;
+          }
+        }
       } 
     }
 
@@ -463,9 +468,14 @@ void maxQsa(double gr[max_graph_size][4],double weights[25],int mouse_pos[1][2],
 
       // get current reward using function Qsa
       double current_reward = Qsa(weights, features);
-      if (max_reward < current_reward) {
+      if (max_reward <= current_reward) {
         max_reward = current_reward;
         opt_action = action;
+      } else {
+        if(opt_action == -3) {
+          max_reward = current_reward;
+          opt_action = action;
+        }
       }
     }
   }
