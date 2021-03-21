@@ -160,10 +160,6 @@ int QLearn_action(double gr[max_graph_size][4], int mouse_pos[1][2], int cats[5]
     // Choose a random direction
     srand((unsigned) time(NULL));
     int rand_action_index = rand() % num_valid_actions;
-
-    // BEGIN DEBUG CODE
-    // printf("Still finding valid direction.\n");
-    // END DEBUG CODE
     action = valid_action_arr[rand_action_index];
   }
 
@@ -345,10 +341,6 @@ int feat_QLearn_action(double gr[max_graph_size][4],double weights[25], int mous
     // Choose a random direction
     srand((unsigned) time(NULL));
     int rand_action_index = rand() % num_valid_actions;
-
-    // BEGIN DEBUG CODE
-    // printf("Still finding valid direction.\n");
-    // END DEBUG CODE
     action = valid_action_arr[rand_action_index];
 
   }
@@ -387,21 +379,23 @@ void evaluateFeatures(double gr[max_graph_size][4],double features[25], int mous
    You can have up to 5 cats and up to 5 cheese chunks, and array entries for the remaining cats/cheese
    will have a value of -1 - check this when evaluating your features!
   */
+ 
   const int MANHATTAN = 0;
   const int EUCLIDEAN = 1;
   double min_cat_dist_manhattan = distanceToClosestItem(mouse_pos, cats, 5, size_X, MANHATTAN);
   double min_cheese_dist_manhattan = distanceToClosestItem(mouse_pos,cheeses, 5, size_X, MANHATTAN);
   double min_cat_dist_euclidean = distanceToClosestItem(mouse_pos, cats, 5, size_X, EUCLIDEAN);
   double min_cheese_dist_euclidean = distanceToClosestItem(mouse_pos,cheeses, 5, size_X, EUCLIDEAN);
-  double num_valid_actions = numValidActions(gr, mouse_pos, size_X);
+  // double num_valid_actions = numValidActions(gr, mouse_pos, size_X);
 
+  // features[0] = -100/(min_cat_dist_manhattan + 1);
+  // features[1] = 10/(min_cheese_dist_manhattan + 1);
 
-
-  features[0] = -100/(min_cat_dist_manhattan + 1);
-  features[1] = 10/(min_cheese_dist_manhattan + 1);
-  features[2] = -10/((min_cat_dist_euclidean + 1) * 2);
-  features[3] = 1/((min_cheese_dist_euclidean + 1) * 2);
-  features[4] = num_valid_actions;
+  features[0] = (min_cat_dist_manhattan);
+  features[1] = -(min_cheese_dist_manhattan);
+  features[2] = min_cat_dist_euclidean;
+  features[3] = -min_cheese_dist_euclidean;
+  // features[4] = num_valid_actions/100;
         
    
 }
@@ -452,6 +446,7 @@ void maxQsa(double gr[max_graph_size][4],double weights[25],int mouse_pos[1][2],
       int x = mouse_pos[0][0];
       int y = mouse_pos[0][1];
 
+      // Update x or y coordinate based on action
       switch(action) {
         case 0:
           y = y - 1;
