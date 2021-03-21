@@ -31,7 +31,7 @@
 #define lambda .5			// Discount rate for future rewards
 #define max_graph_size 32*32
 
-#define numFeatures 2			// UPDATE THIS to be the number of features you have
+#define numFeatures 4			// UPDATE THIS to be the number of features you have
 
 // Function prototypes for D84 - Unit 3 - Reinforcement Learning
 void QLearn_update(int s, int a, double r, int s_new, double *QTable);
@@ -57,7 +57,8 @@ double max_expected_reward(int state, double *QTable);
 int max_expected_action(int state, double *QTable);
 void get_mouse_pos(int mouse_index, int action, int new_mouse_pos[1][2], int size_X);
 int calculate_manhattan_distance(struct graph_location p1, struct graph_location p2);
-int distanceToClosestItem(int mouse_loc[1][2], int item_loc[5][2], int num_items, int size_X);
+double distanceToClosestItem(int mouse_loc[1][2], int item_loc[5][2], int num_items, int size_X, int mode);
+int numValidActions(double gr[max_graph_size][4], int mouse_pos[1][2], int size_X);
 struct graph_location get_graph_location (int index, int size_X);
 
 #endif
