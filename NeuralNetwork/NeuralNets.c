@@ -62,6 +62,17 @@ int train_1layer_net(double sample[INPUTS],int label,double (*sigmoid)(double in
   *          be able to complete this function.
   ***********************************************************************************************************/
 
+ // TODO: Continue iterating until the error on the training set is small (using TotalSquaredError)
+
+  // TODO: Loop through each input on the training set. Can either adjust the weights after each input is processed or use batch
+  // updates to group the inputs into subsets of k and accumlate their squared errors
+
+    // TODO: Feed-forward pass for the input in the current iteration
+
+    // TODO: Compute the error of output layer to expected output for that neuron
+
+    // TODO: Adjust weights_io in order to reduce the error
+
   return(0);		// <--- This should return the class for this sample
 }
 
@@ -121,6 +132,18 @@ void feedforward_1layer(double sample[785], double (*sigmoid)(double input), dou
    *        with a logistic activation function.
    ******************************************************************************************************/
   
+  // TODO: Iterate through every neuron
+  for (int j = 0; j < OUTPUTS; j ++){
+    // TODO: Calculate the activation of for this neuron (i.e. sum all the weights and their associated inputs)
+    double activation = 0;
+    for (int i = 0; i < INPUTS - 1; i ++){
+      
+      activation += weights_io[i][j] + sample[i];
+    }
+    // TODO: Update activations(i.e. sigmoid function on the activation computed above), and scale the input
+    activations[j] = sigmoid(activation * SIGMOID_SCALE);
+  }
+     
 }
 
 void backprop_1layer(double sample[INPUTS], double activations[OUTPUTS], double (*sigmoid)(double input), int label, double weights_io[INPUTS][OUTPUTS])
@@ -302,7 +325,8 @@ void backprop_2layer(double sample[INPUTS],double h_activations[MAX_HIDDEN], dou
 
 double logistic(double input)
 {
- // This function returns the value of the logistic function evaluated on input
- // TO DO: Implement this function!
- return(0);		// <--- Should return the value of the logistic function on the input 
+  // This function returns the value of the logistic function evaluated on input
+  double exponential_val = exp((-1) * input);
+  // Return the logistic function evaluated at the given input (as defined in Unit 5 handout)
+  return 1 / (1 + exponential_val);  		 
 }
