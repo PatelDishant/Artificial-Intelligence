@@ -45,5 +45,6 @@ double logistic(double input);
 // Note that hyperbolic tangent is already provided in math.h as tanh()!
 
 // If you need to add any function prototypes yourself, you can do so *below* this line.
+int find_max(double arr[OUTPUTS]);
 #endif
 

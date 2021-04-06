@@ -29,10 +29,9 @@
 
 #include "NeuralNets.h"
 
-
-int train_1layer_net(double sample[INPUTS],int label,double (*sigmoid)(double input), double weights_io[INPUTS][OUTPUTS])
+int train_1layer_net(double sample[INPUTS], int label, double (*sigmoid)(double input), double weights_io[INPUTS][OUTPUTS])
 {
- /*
+  /*
   *   This is your main training function for 1-layer networks. Recall from lecture that we have a simple,
   *  direct connection between inputs and output neurons (the only layer present here). What we are doing
   *  in effect is training 10 different classifiers, each of which will learn to distinguish one of our
@@ -62,23 +61,23 @@ int train_1layer_net(double sample[INPUTS],int label,double (*sigmoid)(double in
   *          be able to complete this function.
   ***********************************************************************************************************/
 
- // TODO: Continue iterating until the error on the training set is small (using TotalSquaredError)
+  // TODO: Continue iterating until the error on the training set is small (using TotalSquaredError)
 
   // TODO: Loop through each input on the training set. Can either adjust the weights after each input is processed or use batch
   // updates to group the inputs into subsets of k and accumlate their squared errors
 
-    // TODO: Feed-forward pass for the input in the current iteration
+  // TODO: Feed-forward pass for the input in the current iteration
 
-    // TODO: Compute the error of output layer to expected output for that neuron
+  // TODO: Compute the error of output layer to expected output for that neuron
 
-    // TODO: Adjust weights_io in order to reduce the error
+  // TODO: Adjust weights_io in order to reduce the error
 
-  return(0);		// <--- This should return the class for this sample
+  return (0); // <--- This should return the class for this sample
 }
 
-int classify_1layer(double sample[INPUTS],int label,double (*sigmoid)(double input), double weights_io[INPUTS][OUTPUTS])
+int classify_1layer(double sample[INPUTS], int label, double (*sigmoid)(double input), double weights_io[INPUTS][OUTPUTS])
 {
- /*
+  /*
   *   This function classifies an input sample given the current network weights. It returns a class in
   *  [0,9] corresponding to the digit the network has decided is present in the input sample
   * 
@@ -103,13 +102,22 @@ int classify_1layer(double sample[INPUTS],int label,double (*sigmoid)(double inp
   *          You will need to complete feedforward_1layer(), and logistic() in order to
   *          be able to complete this function.
   ***********************************************************************************************************/
- 
-  return(0);   	// <---	This should return the class for this sample
+
+  // Since there are 10 (or OUTPUTS) neurons, let each neuron, indexed from 0 to 9 classify each digit in [0,9], respectively
+  // So if neuron j has the highest activation value in activations[OUTPUTS], then classify the input as j
+  double activations[OUTPUTS];
+
+  // Perform a feedforward pass to get each neuron's activation unit
+  feedforward_1layer(sample, sigmoid, weights_io, activations);
+  // Find the neuron with the highest result (i.e. the neuron that "fired" the most)
+  int classified_digit = find_max(activations);
+
+  return classified_digit; 
 }
 
 void feedforward_1layer(double sample[785], double (*sigmoid)(double input), double weights_io[INPUTS][OUTPUTS], double activations[OUTPUTS])
 {
- /*
+  /*
   *  This function performs the feedforward pass of the network's computation - it propagates information
   *  from input to output, determines the input to each neuron, and calls the sigmoid function to
   *  calculate neuron activation.
@@ -125,25 +133,25 @@ void feedforward_1layer(double sample[785], double (*sigmoid)(double input), dou
   * 
   *  NOTE - You must *scale* the input to the sigmoid function using the SIGMOID_SCALE value. Otherwise
   *         the neurons will be totally saturated and learning won't happen.
-  */ 
- 
+  */
+
   /*******************************************************************************************************
    * TO DO: Complete this function. You will need to implement logistic() in order for this to work
    *        with a logistic activation function.
    ******************************************************************************************************/
-  
+
   // TODO: Iterate through every neuron
-  for (int j = 0; j < OUTPUTS; j ++){
+  for (int j = 0; j < OUTPUTS; j++)
+  {
     // TODO: Calculate the activation of for this neuron (i.e. sum all the weights and their associated inputs)
     double activation = 0;
-    for (int i = 0; i < INPUTS - 1; i ++){
-      
+    for (int i = 0; i < INPUTS - 1; i++)
+    {
       activation += weights_io[i][j] + sample[i];
     }
     // TODO: Update activations(i.e. sigmoid function on the activation computed above), and scale the input
     activations[j] = sigmoid(activation * SIGMOID_SCALE);
   }
-     
 }
 
 void backprop_1layer(double sample[INPUTS], double activations[OUTPUTS], double (*sigmoid)(double input), int label, double weights_io[INPUTS][OUTPUTS])
@@ -169,18 +177,17 @@ void backprop_1layer(double sample[INPUTS], double activations[OUTPUTS], double 
    * 		* Compute an error value given the neuron's target
    * 		* Compute the weight adjustment for each weight (the learning rate is in NeuralNets.h)
    */
-  
-   /***************************************************************************************************
+
+  /***************************************************************************************************
     * TO DO: Implement this function to compute and apply the weight updates for all weights in
     *        the network. You will need to find a way to figure out which sigmoid function you're
     *        using. Then use the procedure discussed in lecture to compute weight updates.
     * ************************************************************************************************/
-   
 }
 
-int train_2layer_net(double sample[INPUTS],int label,double (*sigmoid)(double input), int units, double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS])
+int train_2layer_net(double sample[INPUTS], int label, double (*sigmoid)(double input), int units, double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS])
 {
- /*
+  /*
   *   This is your main training function for 2-layer networks. Now you have to worry about the hidden
   *  layer at this time. *Do not work on this until you have completed the 1-layer network*.
   * 
@@ -212,13 +219,13 @@ int train_2layer_net(double sample[INPUTS],int label,double (*sigmoid)(double in
   *          You will need to complete feedforward_2layer(), backprop_2layer(), and logistic() in order to
   *          be able to complete this function.
   ***********************************************************************************************************/
-  
-  return(0);		// <--- Should return the class for this sample  
+
+  return (0); // <--- Should return the class for this sample
 }
 
-int classify_2layer(double sample[INPUTS],int label,double (*sigmoid)(double input), int units, double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS])
+int classify_2layer(double sample[INPUTS], int label, double (*sigmoid)(double input), int units, double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS])
 {
- /*
+  /*
   *   This function takes an input sample and classifies it using the current network weights. It returns
   *  an int in [0,9] corresponding to which digit the network thinks is present in the input sample.
   * 
@@ -247,13 +254,12 @@ int classify_2layer(double sample[INPUTS],int label,double (*sigmoid)(double inp
   *          be able to complete this function.
   ***********************************************************************************************************/
 
-  return(0);		// <--- Should return the class for this sample  
+  return (0); // <--- Should return the class for this sample
 }
 
-
-void feedforward_2layer(double sample[INPUTS], double (*sigmoid)(double input), double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS], double h_activations[MAX_HIDDEN],double activations[OUTPUTS], int units)
+void feedforward_2layer(double sample[INPUTS], double (*sigmoid)(double input), double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS], double h_activations[MAX_HIDDEN], double activations[OUTPUTS], int units)
 {
- /*
+  /*
   *  Here, implement the feedforward part of the two-layer network's computation.
   * 
   *  Inputs:
@@ -270,8 +276,8 @@ void feedforward_2layer(double sample[INPUTS], double (*sigmoid)(double input), 
   * 
   *  NOTE - You must *scale* the input to the sigmoid function using the SIGMOID_SCALE value. Otherwise
   *         the neurons will be totally saturated and learning won't happen.
-  */ 
- 
+  */
+
   /*******************************************************************************************************
    * TO DO: Complete this function. You will need to implement logistic() in order for this to work
    *        with a logistic activation function.
@@ -284,10 +290,9 @@ void feedforward_2layer(double sample[INPUTS], double (*sigmoid)(double input), 
    *                  the scaling factor has to be adjusted by the factor
    *                  SIGMOID_SCALE*(MAX_HIDDEN/units).
    **************************************************************************************************/
-  
 }
 
-void backprop_2layer(double sample[INPUTS],double h_activations[MAX_HIDDEN], double activations[OUTPUTS], double (*sigmoid)(double input), int label, double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS], int units)
+void backprop_2layer(double sample[INPUTS], double h_activations[MAX_HIDDEN], double activations[OUTPUTS], double (*sigmoid)(double input), int label, double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS], int units)
 {
   /*
    *  This function performs the core of the learning process for 2-layer networks. It performs
@@ -314,13 +319,12 @@ void backprop_2layer(double sample[INPUTS],double h_activations[MAX_HIDDEN], dou
    * 		* Compute an error value given the neuron's target
    * 		* Compute the weight adjustment for each weight (the learning rate is in NeuralNets.h)
    */
-  
-   /***************************************************************************************************
+
+  /***************************************************************************************************
     * TO DO: Implement this function to compute and apply the weight updates for all weights in
     *        the network. You will need to find a way to figure out which sigmoid function you're
     *        using. Then use the procedure discussed in lecture to compute weight updates.
     * ************************************************************************************************/
-   
 }
 
 double logistic(double input)
@@ -328,5 +332,19 @@ double logistic(double input)
   // This function returns the value of the logistic function evaluated on input
   double exponential_val = exp((-1) * input);
   // Return the logistic function evaluated at the given input (as defined in Unit 5 handout)
-  return 1 / (1 + exponential_val);  		 
+  return 1 / (1 + exponential_val);
+}
+
+/***************************************************************************************************
+                                    HELPER FUNCTIONS
+* ************************************************************************************************/
+
+/* Return the left-most index of the largest element in the given array */
+int find_max(double arr[OUTPUTS]){
+  int max_elmnt_idx = 0;
+  for (int i = 0; i < OUTPUTS; i ++){
+    if(arr[max_elmnt_idx] < arr[i])
+      max_elmnt_idx = i;
+  }
+  return max_elmnt_idx;
 }
