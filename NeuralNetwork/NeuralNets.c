@@ -61,18 +61,23 @@ int train_1layer_net(double sample[INPUTS], int label, double (*sigmoid)(double 
   *          be able to complete this function.
   ***********************************************************************************************************/
 
+  const double PASS_VAL = 1.0;  // Value we want our error on the training set to converge to
+  double train_set_error = 0;   // TODO: Change this to be assigned to a function that calculates the error on the training set
+
+  int classified_digit = 0;      // The variable that will represet the class for this sample (initially set to zero)
+
   // TODO: Continue iterating until the error on the training set is small (using TotalSquaredError)
+  while (train_set_error >= PASS_VAL){
+    // TODO: Loop through each input on the training set. Can either adjust the weights after each input is processed or use batch
+    // updates to group the inputs into subsets of k and accumlate their squared errors
+ 
+      // TODO: Feed-forward pass for the input in the current iteration to get the classified digit
+      // Compute the error of output layer to expected output for that neuron
+      // Adjust weights_io in order to reduce the error
+      int classified_digit = classify_1layer(sample, label, sigmoid, weights_io);
+  }
 
-  // TODO: Loop through each input on the training set. Can either adjust the weights after each input is processed or use batch
-  // updates to group the inputs into subsets of k and accumlate their squared errors
-
-  // TODO: Feed-forward pass for the input in the current iteration
-
-  // TODO: Compute the error of output layer to expected output for that neuron
-
-  // TODO: Adjust weights_io in order to reduce the error
-
-  return (0); // <--- This should return the class for this sample
+      return classified_digit; // <--- This should return the class for this sample
 }
 
 int classify_1layer(double sample[INPUTS], int label, double (*sigmoid)(double input), double weights_io[INPUTS][OUTPUTS])
@@ -111,6 +116,9 @@ int classify_1layer(double sample[INPUTS], int label, double (*sigmoid)(double i
   feedforward_1layer(sample, sigmoid, weights_io, activations);
   // Find the neuron with the highest result (i.e. the neuron that "fired" the most)
   int classified_digit = find_max(activations);
+
+  // TODO: Pass proper parameters to backprop_1layer
+  backprop_1layer(sample, activations, sigmoid, label, weights_io);
 
   return classified_digit; 
 }
@@ -219,6 +227,20 @@ int train_2layer_net(double sample[INPUTS], int label, double (*sigmoid)(double 
   *          You will need to complete feedforward_2layer(), backprop_2layer(), and logistic() in order to
   *          be able to complete this function.
   ***********************************************************************************************************/
+
+  for (int j = 0; j < OUTPUTS; j ++){
+    for(int i = 0; i < INPUTS - 1; i ++){
+      // TODO: Get the gradient of the squared error over the ouput for this neuron
+
+      // TODO: Get the gradient of the activation over the weight from this input to this output
+
+      // TODO: Get the gradient of the output over the activation (i.e. need one for logistic and hyper-tangent)
+
+      // TODO: Mulitply the quantities above together with alpha and update it to the current weight associated to the
+      // given input and out put
+    }
+  }
+  
 
   return (0); // <--- Should return the class for this sample
 }
