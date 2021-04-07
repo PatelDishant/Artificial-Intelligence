@@ -348,3 +348,31 @@ int find_max(double arr[OUTPUTS]){
   }
   return max_elmnt_idx;
 }
+
+/* Return the error for output neuron j and input i. Thresholds based on logistic function */
+double error(int i, int j, double sample[INPUTS], double activations[OUTPUTS], int label){
+  // TODO: Get the actual output for this neuron (*MAKE SURE ACTIVATIONS IS UPDATED PROPERLY HERE*)
+  double output = activations[j];
+  // TODO: Calculate the value of the target output for this neuron. Since j indexes
+  //  the output neuron in question, and we classify a digit based on the index of 
+  // the neuron => check if j and label are the same
+  double target;
+  if (j == label){
+      target = 0.7;    // <-- TODO: We may have to change this as we develop
+  } else {
+    // TODO: We want to know what is the target output if this neuron isn't supposed to "fire" for
+    // the given label (i.e. another neuron classified the proper digit to be the label). Why would
+    // it be much less than or much greater than the threshold?
+    target = 0.0;    // <-- TODO: Dummy variable so that it compiles w/o errors
+  }
+  
+
+  // Return their difference
+  return target - output;
+}
+
+/* Return the squared error */
+double squared_error(int i, int j, double sample[INPUTS], double activations[OUTPUTS], int label){
+  double err = error(i, j,sample, activations, label);
+  return err * err;
+}

@@ -46,5 +46,7 @@ double logistic(double input);
 
 // If you need to add any function prototypes yourself, you can do so *below* this line.
 int find_max(double arr[OUTPUTS]);
+double error(int i, int j, double sample[INPUTS], double activations[OUTPUTS], int label);
+double squared_error(int i, int j, double sample[INPUTS], double activations[OUTPUTS], int label);
 #endif
 
