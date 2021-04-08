@@ -266,9 +266,16 @@ int train_2layer_net(double sample[INPUTS], int label, double (*sigmoid)(double 
   ***********************************************************************************************************/
 
   
-  
+  int classified_digit = 0;
+  classified_digit = classify_2layer(sample, label, sigmoid, units, weights_ih, weights_ho);
 
-  return (0); // <--- Should return the class for this sample
+  double activations[OUTPUTS];
+  double h_activations[OUTPUTS];
+  backprop_2layer(sample, h_activations, activations, sigmoid, label, weights_ih, weights_ho, units);
+
+  classified_digit = find_max(activations);
+
+  return classified_digit; // <--- Should return the class for this sample
 }
 
 int classify_2layer(double sample[INPUTS], int label, double (*sigmoid)(double input), int units, double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS])
@@ -302,7 +309,15 @@ int classify_2layer(double sample[INPUTS], int label, double (*sigmoid)(double i
   *          be able to complete this function.
   ***********************************************************************************************************/
 
-  return (0); // <--- Should return the class for this sample
+
+  double activations[OUTPUTS];
+  double h_activations[OUTPUTS];
+
+  feedforward_2layer(sample, sigmoid, weights_ih, weights_ho, h_activations, activations, units);
+
+  int classified_digit = find_max(activations);
+  
+  return classified_digit; // <--- Should return the class for this sample
 }
 
 void feedforward_2layer(double sample[INPUTS], double (*sigmoid)(double input), double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS], double h_activations[MAX_HIDDEN], double activations[OUTPUTS], int units)
@@ -338,6 +353,24 @@ void feedforward_2layer(double sample[INPUTS], double (*sigmoid)(double input), 
    *                  the scaling factor has to be adjusted by the factor
    *                  SIGMOID_SCALE*(MAX_HIDDEN/units).
    **************************************************************************************************/
+  // TODO: Iterate through each neuron in the output layer
+  for(int j = 0; j < OUTPUTS; j ++){
+    // TODO: Initialize the total activation to zero
+    double activation = 0;
+    // TODO: Iterate through each neuron in the hidden layer
+    for (int k = 0; k < units; k ++){
+      // TODO: Intialize the total activation for the hidden layer to zero
+      double h_activation = 0;
+      // TODO: Iterate through each input
+      for(int i = 0; i < INPUTS - 1; i ++){
+        h_activation += weights_ih[i][k] * sample[i];
+      }
+      h_activations[k] = sigmoid(h_activation * SIGMOID_SCALE);
+      activation += weights_ho[k][j] * h_activations[k];
+    }
+    h_activations[j] = sigmoid(activation * SIGMOID_SCALE * (MAX_HIDDEN/units));
+  }
+
 }
 
 void backprop_2layer(double sample[INPUTS], double h_activations[MAX_HIDDEN], double activations[OUTPUTS], double (*sigmoid)(double input), int label, double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS], int units)
@@ -457,7 +490,7 @@ double get_activation(double activations[OUTPUTS], int neuron_idx, int sigmoid_i
   } else if (sigmoid_id == TANH){
     gradient = 1 - neuron_activation * neuron_activation;
   }
-  
+
   return gradient;
 }
 
