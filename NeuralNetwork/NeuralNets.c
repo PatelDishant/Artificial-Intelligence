@@ -271,9 +271,9 @@ int train_2layer_net(double sample[INPUTS], int label, double (*sigmoid)(double 
 
   double activations[OUTPUTS];
   double h_activations[OUTPUTS];
-  backprop_2layer(sample, h_activations, activations, sigmoid, label, weights_ih, weights_ho, units);
+  // backprop_2layer(sample, h_activations, activations, sigmoid, label, weights_ih, weights_ho, units);
 
-  classified_digit = find_max(activations);
+  // classified_digit = find_max(activations);
 
   return classified_digit; // <--- Should return the class for this sample
 }
