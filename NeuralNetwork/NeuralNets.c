@@ -269,8 +269,10 @@ int train_2layer_net(double sample[INPUTS], int label, double (*sigmoid)(double 
   int classified_digit = 0;
   classified_digit = classify_2layer(sample, label, sigmoid, units, weights_ih, weights_ho);
 
+
+  // TODO: This is for back propagation
   double activations[OUTPUTS];
-  double h_activations[OUTPUTS];
+  double h_activations[units];
   // backprop_2layer(sample, h_activations, activations, sigmoid, label, weights_ih, weights_ho, units);
 
   // classified_digit = find_max(activations);
@@ -309,13 +311,13 @@ int classify_2layer(double sample[INPUTS], int label, double (*sigmoid)(double i
   *          be able to complete this function.
   ***********************************************************************************************************/
 
-
+ 
   double activations[OUTPUTS];
-  double h_activations[OUTPUTS];
+  double h_activations[units];
 
   feedforward_2layer(sample, sigmoid, weights_ih, weights_ho, h_activations, activations, units);
 
-  int classified_digit = find_max(activations);
+  int classified_digit = 0;
   
   return classified_digit; // <--- Should return the class for this sample
 }
@@ -353,23 +355,19 @@ void feedforward_2layer(double sample[INPUTS], double (*sigmoid)(double input), 
    *                  the scaling factor has to be adjusted by the factor
    *                  SIGMOID_SCALE*(MAX_HIDDEN/units).
    **************************************************************************************************/
+  
+  get_h_activations(sample, sigmoid, h_activations, weights_ih, units);
   // TODO: Iterate through each neuron in the output layer
-  for(int j = 0; j < OUTPUTS; j ++){
-    // TODO: Initialize the total activation to zero
-    double activation = 0;
-    // TODO: Iterate through each neuron in the hidden layer
-    for (int k = 0; k < units; k ++){
-      // TODO: Intialize the total activation for the hidden layer to zero
-      double h_activation = 0;
-      // TODO: Iterate through each input
-      for(int i = 0; i < INPUTS - 1; i ++){
-        h_activation += weights_ih[i][k] * sample[i];
-      }
-      h_activations[k] = sigmoid(h_activation * SIGMOID_SCALE);
-      activation += weights_ho[k][j] * h_activations[k];
-    }
-    h_activations[j] = sigmoid(activation * SIGMOID_SCALE * (MAX_HIDDEN/units));
-  }
+  // for(int j = 0; j < OUTPUTS; j ++){
+  //   // TODO: Initialize the total activation to zero
+  //   double activation = 0;
+  //   // TODO: Iterate through each neuron in the hidden layer
+  //   for (int i = 0; i < (MAX_HIDDEN/units); i++)
+  //   {
+  //     activation += weights_ho[i][j] * h_activations[i];
+  //   }
+  //   activations[j] = sigmoid(activation * SIGMOID_SCALE * (MAX_HIDDEN/units));
+  // }
 
 }
 
@@ -511,4 +509,20 @@ int identify_sigmoid(double (*sigmoid)(double input)){
     sigmoid_id = 1;
   } 
   return sigmoid_id;
+}
+
+void get_h_activations(double sample [INPUTS], double (*sigmoid)(double input), double h_activations[MAX_HIDDEN],double weights_ih[INPUTS][MAX_HIDDEN], int units ){
+  
+  // TODO: Iterate through each input
+  for (int k = 0; k < units ; k ++){
+    // TODO: Intialize the total activation for the hidden layer to zero
+    double h_activation = 0;
+    for(int i = 0; i < INPUTS - 1; i ++){
+      h_activation += weights_ih[i][k] * sample[i];
+      // printf("weight from %d to %d: %f\n", i, k, weights_ih[i][k]);
+    }
+    h_activations[k] = sigmoid(h_activation * SIGMOID_SCALE);
+  }
+
+  
 }
