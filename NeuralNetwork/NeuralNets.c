@@ -61,29 +61,25 @@ int train_1layer_net(double sample[INPUTS], int label, double (*sigmoid)(double 
   *          be able to complete this function.
   ***********************************************************************************************************/
 
-  const double PASS_VAL = 1.0;  // Value we want our error on the training set to converge to
-  double train_set_error = 0;
+
+  
   
   int classified_digit = 0;      // The variable that will represet the class for this sample (initially set to zero)
  
-  // TODO: Continue iterating until the error on the training set is small (using TotalSquaredError)
-  // while (train_set_error >= PASS_VAL){
-  //   // TODO: Loop through each input on the training set. Can either adjust the weights after each input is processed or use batch
-    // updates to group the inputs into subsets of k and accumlate their squared errors
+  // TODO: Loop through each input on the training set. Can either adjust the weights after each input is processed or use batch
+  // updates to group the inputs into subsets of k and accumlate their squared errors
  
-      // TODO: Feed-forward pass for the input in the current iteration to get the classified digit
-      classified_digit = classify_1layer(sample, label, sigmoid, weights_io);
+  // TODO: Feed-forward pass for the input in the current iteration to get the classified digit
+  classified_digit = classify_1layer(sample, label, sigmoid, weights_io);
 
-      // Initialize the activations array required for back propagation
-      double activations[OUTPUTS];
+  // Initialize the activations array required for back propagation
+  double activations[OUTPUTS];
 
-      // Perform a back propagation with the updated weights. Compute the error of output layer to expected output for that neuron
-      // Adjust weights_io in order to reduce the error
-      backprop_1layer(sample, activations, sigmoid, label, weights_io);
-      // Get the the index of the neuron that "fired" (i.e. the argmax of activations)
-      classified_digit = find_max(activations);
-  //     train_set_error = total_squared_error(sample, activations, label);
-  // }
+  // Perform a back propagation with the updated weights. Compute the error of output layer to expected output for that neuron
+  // Adjust weights_io in order to reduce the error
+  backprop_1layer(sample, activations, sigmoid, label, weights_io);
+  // Get the the index of the neuron that "fired" (i.e. the argmax of activations)
+  classified_digit = find_max(activations);
 
   return classified_digit; // <--- This should return the class for this sample
 }
@@ -212,14 +208,17 @@ void backprop_1layer(double sample[INPUTS], double activations[OUTPUTS], double 
       activations[j] = sigmoid(activation * SIGMOID_SCALE);
     }
 
-    // TODO: Now that we have the outputs for each neuron, update the weights based on the expected
+    // Now that we have the outputs for each neuron, update the weights based on the expected
     // target for the neurons
    for (int j = 0; j < OUTPUTS; j ++){
-     // TODO: Get the gradient of the squared error over the ouput for this neuron
-      double error_gradient = error(label, activations[j], j);
-      // TODO: Get the gradient of the activation over the weight from this input to this output
-      // TODO: Currently using logistic, need to check if tanh later
-      double logistic_activation = get_logistic_activation(activations, j);
+     // Identify which sigmoid function is being used
+     int sigmoid_id = identify_sigmoid(sigmoid);
+
+     // Get the gradient of the squared error over the ouput for this neuron
+      double error_gradient = error(label, activations[j], j,sigmoid_id);
+      // Get the gradient of the activation over the weight from this input to this output
+      // Currently using logistic, need to check if tanh later
+      double logistic_activation = get_activation(activations, j, sigmoid_id);
     for(int i = 0; i < INPUTS - 1; i ++){
       // TODO: Get the gradient of the output over the activation (i.e. need one for logistic and hyper-tangent)
       double activation_gradient = sample[i];
@@ -403,22 +402,41 @@ int find_max(double arr[OUTPUTS]){
 }
 
 /* Return the error for output neuron j and input i. Thresholds based on logistic function */
-double error(int label, double output_value, int neuron_idx){
-  // TODO: Calculate the value of the target output for this neuron. Since j indexes
+double error(int label, double output_value, int neuron_idx, int sigmoid_id){
+  const int LOGISTIC = 0;
+  const int TANH = 1;
+  const int OTHER = -1;
+  // Calculate the value of the target output for this neuron. Since j indexes
   //  the output neuron in question, and we classify a digit based on the index of 
   // the neuron => check if j and label are the same
   double target;
-  if (neuron_idx == label){
-      // We define the  ouput of a neuron in this case should have an ouput of MATCH_TARGET_VAL
-      // which indicates that neuron j clearly classified the label in the sample
-      const double MATCH_TARGET_VAL = 0.5;
-      target = MATCH_TARGET_VAL;    // <-- TODO: We may have to change this as we develop
-  } else {
-    // We define ouput of a neuron in this case should have an ouput of NOT_TARGET_VAL
-    // so that the ouput of neuron j should be much less than the threshold to indicat
-    // that neuron j should not have 'fired"
-    const double NOT_TARGET_VAL = 0.0;
-    target = NOT_TARGET_VAL;    // <-- TODO: Dummy variable so that it compiles w/o errors
+  if(sigmoid_id == LOGISTIC){
+    if (neuron_idx == label){
+        // We define the  ouput of a neuron in this case should have an ouput of MATCH_TARGET_VAL
+        // which indicates that neuron j clearly classified the label in the sample
+        const double MATCH_TARGET_VAL = 0.5;
+        target = MATCH_TARGET_VAL;    // <-- TODO: We may have to change this as we develop
+    } else {
+      // We define ouput of a neuron in this case should have an ouput of NOT_TARGET_VAL
+      // so that the ouput of neuron j should be much less than the threshold to indicat
+      // that neuron j should not have 'fired"
+      const double NOT_TARGET_VAL = 0.0;
+      
+      target = NOT_TARGET_VAL;    // <-- TODO: Dummy variable so that it compiles w/o errors
+    }
+  } else if (sigmoid_id == TANH){
+    if (neuron_idx == label){
+        // We define the  ouput of a neuron in this case should have an ouput of MATCH_TARGET_VAL
+        // which indicates that neuron j clearly classified the label in the sample
+        const double MATCH_TARGET_VAL = 0;
+        target = MATCH_TARGET_VAL;    // <-- TODO: We may have to change this as we develop
+    } else {
+      // We define ouput of a neuron in this case should have an ouput of NOT_TARGET_VAL
+      // so that the ouput of neuron j should be much less than the threshold to indicat
+      // that neuron j should not have 'fired"
+      const double NOT_TARGET_VAL = -1;
+      target = NOT_TARGET_VAL;    // <-- TODO: Dummy variable so that it compiles w/o errors
+    }
   }
   
 
@@ -426,25 +444,38 @@ double error(int label, double output_value, int neuron_idx){
   return target - output_value;
 }
 
-/* Return the squared error */
-double squared_error(int j, double activations[OUTPUTS], int label){
-  double output_value = activations[j];
-  int neuron_idx = j;
-  double err = error(label, output_value, neuron_idx);
-  return err * err;
-}
 
-double total_squared_error(double sample[INPUTS], double activations[OUTPUTS], int label){
-  double total = 0;
-  for(int j = 0; j < OUTPUTS; j ++){
-    for (int i = 0; i < INPUTS - 1; i ++){
-      total += squared_error(j, activations, label);
-    }
-  }
-  return total;
-}
-
-double get_logistic_activation(double activations[OUTPUTS], int neuron_idx){
+/* Returns the activition needed for calculating the gradient*/
+double get_activation(double activations[OUTPUTS], int neuron_idx, int sigmoid_id){
+  const int LOGISTIC = 0;
+  const int TANH = 1;
+  double gradient = -1;
   double neuron_activation = activations[neuron_idx];
-  return  neuron_activation * (1 - neuron_activation);
+
+  if(sigmoid_id == LOGISTIC) {
+    gradient = neuron_activation * (1 - neuron_activation);
+  } else if (sigmoid_id == TANH){
+    gradient = 1 - neuron_activation * neuron_activation;
+  }
+  
+  return gradient;
+}
+
+/* Return 0 if the sigmoid is a logistic function and if it's
+tanh then return 1*/
+int identify_sigmoid(double (*sigmoid)(double input)){
+  // TODO: Remove below
+  const double X_VAL = 0;
+  const double LOG_Y_VAL = 0.5;
+  const double TANH_VAL = 0;
+  double value = sigmoid(X_VAL);
+  int sigmoid_id = -1;
+
+  if(value == 0.5){
+    sigmoid_id = 0;
+  } else if (value == 0)
+  {
+    sigmoid_id = 1;
+  } 
+  return sigmoid_id;
 }
