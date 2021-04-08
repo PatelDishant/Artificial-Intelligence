@@ -46,7 +46,9 @@ double logistic(double input);
 
 // If you need to add any function prototypes yourself, you can do so *below* this line.
 int find_max(double arr[OUTPUTS]);
-double error(int i, int j, double sample[INPUTS], double activations[OUTPUTS], int label);
-double squared_error(int i, int j, double sample[INPUTS], double activations[OUTPUTS], int label);
+double error(int label, double output_value, int neuron_idx);
+double squared_error(int j, double activations[OUTPUTS], int label);
+double get_logistic_activation(double activations[OUTPUTS], int neuron_idx);
+double total_squared_error(double sample[INPUTS], double activations[OUTPUTS], int label);
 #endif
 

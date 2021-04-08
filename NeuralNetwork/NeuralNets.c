@@ -62,22 +62,30 @@ int train_1layer_net(double sample[INPUTS], int label, double (*sigmoid)(double 
   ***********************************************************************************************************/
 
   const double PASS_VAL = 1.0;  // Value we want our error on the training set to converge to
-    double train_set_error = 0;   // TODO: Change this to be assigned to a function that calculates the error on the training set
+  double train_set_error = 0;
   
   int classified_digit = 0;      // The variable that will represet the class for this sample (initially set to zero)
  
   // TODO: Continue iterating until the error on the training set is small (using TotalSquaredError)
-  while (train_set_error >= PASS_VAL){
-    // TODO: Loop through each input on the training set. Can either adjust the weights after each input is processed or use batch
+  // while (train_set_error >= PASS_VAL){
+  //   // TODO: Loop through each input on the training set. Can either adjust the weights after each input is processed or use batch
     // updates to group the inputs into subsets of k and accumlate their squared errors
  
       // TODO: Feed-forward pass for the input in the current iteration to get the classified digit
-      // Compute the error of output layer to expected output for that neuron
-      // Adjust weights_io in order to reduce the error
-      int classified_digit = classify_1layer(sample, label, sigmoid, weights_io);
-  }
+      classified_digit = classify_1layer(sample, label, sigmoid, weights_io);
 
-      return classified_digit; // <--- This should return the class for this sample
+      // Initialize the activations array required for back propagation
+      double activations[OUTPUTS];
+
+      // Perform a back propagation with the updated weights. Compute the error of output layer to expected output for that neuron
+      // Adjust weights_io in order to reduce the error
+      backprop_1layer(sample, activations, sigmoid, label, weights_io);
+      // Get the the index of the neuron that "fired" (i.e. the argmax of activations)
+      classified_digit = find_max(activations);
+  //     train_set_error = total_squared_error(sample, activations, label);
+  // }
+
+  return classified_digit; // <--- This should return the class for this sample
 }
 
 int classify_1layer(double sample[INPUTS], int label, double (*sigmoid)(double input), double weights_io[INPUTS][OUTPUTS])
@@ -114,9 +122,6 @@ int classify_1layer(double sample[INPUTS], int label, double (*sigmoid)(double i
 
   // Perform a feedforward pass to get each neuron's activation unit
   feedforward_1layer(sample, sigmoid, weights_io, activations);
-
-  // TODO: Pass proper parameters to backprop_1layer
-  backprop_1layer(sample, activations, sigmoid, label, weights_io);
 
   // Find the neuron with the highest result (i.e. the neuron that "fired" the most)
   int classified_digit = find_max(activations);
@@ -156,11 +161,12 @@ void feedforward_1layer(double sample[785], double (*sigmoid)(double input), dou
     double activation = 0;
     for (int i = 0; i < INPUTS - 1; i++)
     {
-      activation += weights_io[i][j] + sample[i];
+      activation += weights_io[i][j] * sample[i];
     }
     // TODO: Update activations(i.e. sigmoid function on the activation computed above), and scale the input
     activations[j] = sigmoid(activation * SIGMOID_SCALE);
   }
+
 }
 
 void backprop_1layer(double sample[INPUTS], double activations[OUTPUTS], double (*sigmoid)(double input), int label, double weights_io[INPUTS][OUTPUTS])
@@ -192,16 +198,35 @@ void backprop_1layer(double sample[INPUTS], double activations[OUTPUTS], double 
     *        the network. You will need to find a way to figure out which sigmoid function you're
     *        using. Then use the procedure discussed in lecture to compute weight updates.
     * ************************************************************************************************/
+
+    // Iterate through every neuron so that we can get their actual outputs
+    for (int j = 0; j < OUTPUTS; j++)
+    {
+      // Calculate the activation of for this neuron (i.e. sum all the weights and their associated inputs)
+      double activation = 0;
+      for (int i = 0; i < INPUTS - 1; i++)
+      {
+        activation += weights_io[i][j] * sample[i];
+      }
+      // Update activations(i.e. sigmoid function on the activation computed above), and scale the input
+      activations[j] = sigmoid(activation * SIGMOID_SCALE);
+    }
+
+    // TODO: Now that we have the outputs for each neuron, update the weights based on the expected
+    // target for the neurons
    for (int j = 0; j < OUTPUTS; j ++){
-    for(int i = 0; i < INPUTS - 1; i ++){
-      // TODO: Get the gradient of the squared error over the ouput for this neuron
-
+     // TODO: Get the gradient of the squared error over the ouput for this neuron
+      double error_gradient = error(label, activations[j], j);
       // TODO: Get the gradient of the activation over the weight from this input to this output
-
+      // TODO: Currently using logistic, need to check if tanh later
+      double logistic_activation = get_logistic_activation(activations, j);
+    for(int i = 0; i < INPUTS - 1; i ++){
       // TODO: Get the gradient of the output over the activation (i.e. need one for logistic and hyper-tangent)
-
+      double activation_gradient = sample[i];
       // TODO: Mulitply the quantities above together with alpha and update it to the current weight associated to the
       // given input and out put
+      double error_change = activation_gradient * logistic_activation * error_gradient;
+      weights_io[i][j] += ALPHA * error_change;
     }
   }
 }
@@ -378,29 +403,48 @@ int find_max(double arr[OUTPUTS]){
 }
 
 /* Return the error for output neuron j and input i. Thresholds based on logistic function */
-double error(int i, int j, double sample[INPUTS], double activations[OUTPUTS], int label){
-  // TODO: Get the actual output for this neuron (*MAKE SURE ACTIVATIONS IS UPDATED PROPERLY HERE*)
-  double output = activations[j];
+double error(int label, double output_value, int neuron_idx){
   // TODO: Calculate the value of the target output for this neuron. Since j indexes
   //  the output neuron in question, and we classify a digit based on the index of 
   // the neuron => check if j and label are the same
   double target;
-  if (j == label){
-      target = 0.5;    // <-- TODO: We may have to change this as we develop
+  if (neuron_idx == label){
+      // We define the  ouput of a neuron in this case should have an ouput of MATCH_TARGET_VAL
+      // which indicates that neuron j clearly classified the label in the sample
+      const double MATCH_TARGET_VAL = 0.5;
+      target = MATCH_TARGET_VAL;    // <-- TODO: We may have to change this as we develop
   } else {
-    // TODO: We want to know what is the target output if this neuron isn't supposed to "fire" for
-    // the given label (i.e. another neuron classified the proper digit to be the label). Why would
-    // it be much less than or much greater than the threshold?
-    target = 0.0;    // <-- TODO: Dummy variable so that it compiles w/o errors
+    // We define ouput of a neuron in this case should have an ouput of NOT_TARGET_VAL
+    // so that the ouput of neuron j should be much less than the threshold to indicat
+    // that neuron j should not have 'fired"
+    const double NOT_TARGET_VAL = 0.0;
+    target = NOT_TARGET_VAL;    // <-- TODO: Dummy variable so that it compiles w/o errors
   }
   
 
   // Return their difference
-  return target - output;
+  return target - output_value;
 }
 
 /* Return the squared error */
-double squared_error(int i, int j, double sample[INPUTS], double activations[OUTPUTS], int label){
-  double err = error(i, j,sample, activations, label);
+double squared_error(int j, double activations[OUTPUTS], int label){
+  double output_value = activations[j];
+  int neuron_idx = j;
+  double err = error(label, output_value, neuron_idx);
   return err * err;
+}
+
+double total_squared_error(double sample[INPUTS], double activations[OUTPUTS], int label){
+  double total = 0;
+  for(int j = 0; j < OUTPUTS; j ++){
+    for (int i = 0; i < INPUTS - 1; i ++){
+      total += squared_error(j, activations, label);
+    }
+  }
+  return total;
+}
+
+double get_logistic_activation(double activations[OUTPUTS], int neuron_idx){
+  double neuron_activation = activations[neuron_idx];
+  return  neuron_activation * (1 - neuron_activation);
 }
