@@ -62,10 +62,10 @@ int train_1layer_net(double sample[INPUTS], int label, double (*sigmoid)(double 
   ***********************************************************************************************************/
 
   const double PASS_VAL = 1.0;  // Value we want our error on the training set to converge to
-  double train_set_error = 0;   // TODO: Change this to be assigned to a function that calculates the error on the training set
-
+    double train_set_error = 0;   // TODO: Change this to be assigned to a function that calculates the error on the training set
+  
   int classified_digit = 0;      // The variable that will represet the class for this sample (initially set to zero)
-
+ 
   // TODO: Continue iterating until the error on the training set is small (using TotalSquaredError)
   while (train_set_error >= PASS_VAL){
     // TODO: Loop through each input on the training set. Can either adjust the weights after each input is processed or use batch
@@ -114,11 +114,12 @@ int classify_1layer(double sample[INPUTS], int label, double (*sigmoid)(double i
 
   // Perform a feedforward pass to get each neuron's activation unit
   feedforward_1layer(sample, sigmoid, weights_io, activations);
-  // Find the neuron with the highest result (i.e. the neuron that "fired" the most)
-  int classified_digit = find_max(activations);
 
   // TODO: Pass proper parameters to backprop_1layer
   backprop_1layer(sample, activations, sigmoid, label, weights_io);
+
+  // Find the neuron with the highest result (i.e. the neuron that "fired" the most)
+  int classified_digit = find_max(activations);
 
   return classified_digit; 
 }
@@ -191,6 +192,18 @@ void backprop_1layer(double sample[INPUTS], double activations[OUTPUTS], double 
     *        the network. You will need to find a way to figure out which sigmoid function you're
     *        using. Then use the procedure discussed in lecture to compute weight updates.
     * ************************************************************************************************/
+   for (int j = 0; j < OUTPUTS; j ++){
+    for(int i = 0; i < INPUTS - 1; i ++){
+      // TODO: Get the gradient of the squared error over the ouput for this neuron
+
+      // TODO: Get the gradient of the activation over the weight from this input to this output
+
+      // TODO: Get the gradient of the output over the activation (i.e. need one for logistic and hyper-tangent)
+
+      // TODO: Mulitply the quantities above together with alpha and update it to the current weight associated to the
+      // given input and out put
+    }
+  }
 }
 
 int train_2layer_net(double sample[INPUTS], int label, double (*sigmoid)(double input), int units, double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS])
@@ -228,18 +241,7 @@ int train_2layer_net(double sample[INPUTS], int label, double (*sigmoid)(double 
   *          be able to complete this function.
   ***********************************************************************************************************/
 
-  for (int j = 0; j < OUTPUTS; j ++){
-    for(int i = 0; i < INPUTS - 1; i ++){
-      // TODO: Get the gradient of the squared error over the ouput for this neuron
-
-      // TODO: Get the gradient of the activation over the weight from this input to this output
-
-      // TODO: Get the gradient of the output over the activation (i.e. need one for logistic and hyper-tangent)
-
-      // TODO: Mulitply the quantities above together with alpha and update it to the current weight associated to the
-      // given input and out put
-    }
-  }
+  
   
 
   return (0); // <--- Should return the class for this sample
@@ -357,6 +359,10 @@ double logistic(double input)
   return 1 / (1 + exponential_val);
 }
 
+double hyper_tan(double input){
+  // TODO: this assuming the function is just tanh()
+  return tanh(input);
+}
 /***************************************************************************************************
                                     HELPER FUNCTIONS
 * ************************************************************************************************/
@@ -380,7 +386,7 @@ double error(int i, int j, double sample[INPUTS], double activations[OUTPUTS], i
   // the neuron => check if j and label are the same
   double target;
   if (j == label){
-      target = 0.7;    // <-- TODO: We may have to change this as we develop
+      target = 0.5;    // <-- TODO: We may have to change this as we develop
   } else {
     // TODO: We want to know what is the target output if this neuron isn't supposed to "fire" for
     // the given label (i.e. another neuron classified the proper digit to be the label). Why would
