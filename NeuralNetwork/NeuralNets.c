@@ -416,7 +416,7 @@ void backprop_2layer(double sample[INPUTS], double h_activations[MAX_HIDDEN], do
   // Identifiy the sigmoid function being used
   int sigmoid_id = identify_sigmoid(sigmoid);
 
-  
+  // First update all the weighted edges connecting an input to a neuron in the hidden layer
   for(int k = 0; k < units; k ++) {
     double total_err_sum = get_total_err_sum(label, k, activations,weights_ho, sigmoid_id);
     for (int i = 0; i < INPUTS; i ++){
@@ -436,20 +436,18 @@ void backprop_2layer(double sample[INPUTS], double h_activations[MAX_HIDDEN], do
     }
   }
 
-  // Loop through each neuron in the hidden layer
+  
+  // Now update all the weighted edges connecting a neuron in the hidden layer to a neuron in the outter layer
   for(int j = 0; j < OUTPUTS; j ++)
   {
     for(int k = 0; k < units; k ++){
-    double total_err_sum = get_total_err_sum(label, k, activations,weights_ho, sigmoid_id);
+    double total_err_sum = error(label, activations[j], j, sigmoid_id);
     // Get the gradient of the activation over the weight from this input to this output
     // Currently using logistic, need to check if tanh later
-    double sigmoid_h_activation = get_h_activation(h_activations, k, sigmoid_id);
-    double error_h_change = h_activations[k] * sigmoid_h_activation * total_err_sum;
-    
-    // Loop through each output neuron j to update the weight from k to j
-    {
-      weights_ho[k][j] += ALPHA * error_h_change;
-    }
+    double sigmoid_activation = get_activation(activations, j, sigmoid_id);
+    double error_h_change = h_activations[k] * sigmoid_activation * total_err_sum;
+    weights_ho[k][j] += ALPHA * error_h_change;
+
 
     }
   }
