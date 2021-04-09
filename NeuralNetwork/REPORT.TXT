@@ -10,18 +10,17 @@ mark.
 
 ________________________________________________
 
-Student Name 1 (last, first):
+Student Name 1 (last, first): Patel, Dishant
 
+Student Name 2 (last, first): Najmeddini, Omid
 
-Student Name 2 (last, first):
+Student number 1: 999013749
 
-Student number 1:
+Student number 2: 1002358441
 
-Student number 2:
+UTORid 1: pateldi7
 
-UTORid 1:
-
-UTORid 2:
+UTORid 2: najmeddi
 
 READ THIS AND SIGN YOUR NAME AT THE END:
 
@@ -29,7 +28,7 @@ READ THIS AND SIGN YOUR NAME AT THE END:
 honesty and plaguarism. All work submitted as part
 of this assignment is my own.
 
-    Signed: _(student 1 name)__      _(student 2 name)_
+    Signed: Dishant Patel	Omid Najmeddini
 
 
 (-5 marks for failing to provide the identifying
@@ -42,51 +41,142 @@ but explain carefully when needed.
 1 .- (1 marks) Train a 1-layer network using the Logistic activation
                function. 
 
-	       Copy/paste the reported classification rates for:
-	 	
-	       Training data (last training round):
+	       Copy/paste the reported classification rates for: 
+		   
+	       Training data (last training round): 0.859918
 
-	       Testing data:
+	       Testing data: 0.866893
 
 2 .- (1 marks) Repeat the process using the hyperbolic tangent activation
 	       function.
 
+	       Training data (last training round): 0.898502
+
+	       Testing data: 0.907313
 
 3 .- (1 marks) Which type of activation function yielded the best classification
 	       results? which one learned faster?
+			
+			The activation function that yielded the best classification results
+			is the hyperbolic tangent. Similarly, the one that learned faster is
+			again the hyperbolic tangent.
 
 4 .- (1 marks) Train a 2-layer network with hyperbolic-tangent activation, using
 	       150 hidden units. Report the classification rates on training and
-	       testing data just as for 1) and 2).	       
+	       testing data just as for 1) and 2).	
+
+		Logistic activation:
+
+		   Training data (last training round): 0.100000
+
+	       Testing data: 0.100000    
+
+		Hyperbolic tangent activation:
+		
+		   Training data (last training round): 0.100000
+
+	       Testing data: 0.100000
 	       
 5 .- (1 marks) Same as 4), except use 10 hidden units instead
 
+		Logistic activation:
+
+		   Training data (last training round): 0.100000
+
+	       Testing data: 0.100000    
+
+		Hyperbolic tangent activation:
+		
+		   Training data (last training round): 0.100000
+
+	       Testing data: 0.100000 
+
 6 .- (1 marks) Same as 5), except use 3 hidden units instead
+
+		Logistic activation:
+
+		   Training data (last training round): 0.100000
+
+	       Testing data: 0.100000    
+
+		Hyperbolic tangent activation:
+		
+		   Training data (last training round): 0.100000
+
+	       Testing data: 0.100000 
 
 7 .- (3 marks) Comment on the experiments in 4, 5, and 6, and give your conclusion
 	       regarding the effect of the number of hidden units on classification
 	       accuracy. 
+		
+		Unfortunately our code does not update the values as expected therefore 
+		the classification accuracy does not increase or decrease when changing 
+		the number of hidden unit. 
 
-	       What is the network with 3 hidden telling you about this classification
-	       problem?
+		However, we believe, based on the notes and lectures, that the classification 
+		accuracy should increase when going from 150 hidden units to 10 hidden units, 
+		but decrease when going from 10 hidden units to 3 hiddent units.
+
+	What is the network with 3 hidden telling you about this classification
+	problem?
+
+		We believe that with just 3 hidden units, there are a lot of false 
+		positive and false negatives due to different neurons or digits 
+		being categorized together. 
 
 8 .- (3 marks) Train the best performing network you can. Use any activation function
 	       you wish, and set the number of hidden units so as to achieve the best
 	       performance.
 
-	       Number of hidden units used:
+	       Number of hidden units used: 30
 
-	       Classification rate on testing data:
+	       Classification rate on testing data: 0.921670
 
 9 .- (3 marks) Describe how you would build a network to play the cat
 	        and mouse game (move the mouse to help it survive).
 
 		- Describe what the input is in terms of a vector of
 		  values
+
+		  Assume that our game grid is comprised of nxn tiles, therefore
+		  our vector of values would be nxn elements where each element takes
+		  a value in a pre-defined range. This range defines what's on the particular tile.
+		  For example:
+		  	0 - Nothing on this tile
+			1 - There is a wall on this tile (i.e. blocks mouse)
+			2 - There is a mouse on this tile
+			3 - There is a cat on this tile
+			4 - There is cheese on this tile
+			...
+			and other values to cover other such scenarios
+
+	
 		- Describe what the output layer looks like (how many
 		  neurons and what they encode)
+		  
+		  The output layer would have neurons associated to each action our mouse can take.
+		  More specifically the number of neurons is the number of actions. For example, if
+		  our actions are move TOP, RIGHT, DOWN, LEFT, then neuron 1 is in charge of firing
+		  if we our target is to move to the top tile,neuron 2 is in charge of firing
+		  if we our target is to move to the right tile, and so on.
+
 		- Describe the error function
+
+		  Using squared error, our target for output neuron j is to be 1 to indicate that
+		  neuron j is supposed to fire and 0 otherwise, and our actual output for neuron j 
+		  is f(A(I), or in other words, the action our neural network has chosen, 
+		  then simply take then difference of the former and the latter squared as the error.
+
 		- How many layers should you use?
+
+		The number of layers would depend on the number of features we wish to make use of.
+		In the case of one hidden layer, the neurons are fed the configuration of the game. 
+		So neurons in this layer can help determine things like what is the distance from 
+		the mouse to the closest cheese. If we were to add on more hidden layers then we 
+		can make even more inferences upon the features fed from the previous layer. For 
+		example, we can infer from the distance from the mouse to the closest cheese, the 
+		distance from the mouse to the closest cat, and also whether it's a "super-cheese", 
+		to help determine the best action in the output layer.
 _____________________________________________________
 
 Mark with an 'x' where appropriate. If something is only
@@ -96,22 +186,22 @@ doesn't work, or what problems exist.
         	Complete/Working	Partial		Not done
 
 Logistic
- activation
+ activation			x
  
 Tanh
- activation
+ activation			x
 
-1L Feed-forward  
+1L Feed-forward		x  
 
-1L Backprop
+1L Backprop			x
 
-1L Classify
+1L Classify			x
 
-2L Feed-forward
+2L Feed-forward		x	
 
-2L Backprop
+2L Backprop						x						
 
-2L Classify
+2L Classify			x
 _____________________________________________________
 
 Marking:

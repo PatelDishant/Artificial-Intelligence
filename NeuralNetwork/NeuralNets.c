@@ -29,10 +29,9 @@
 
 #include "NeuralNets.h"
 
-
-int train_1layer_net(double sample[INPUTS],int label,double (*sigmoid)(double input), double weights_io[INPUTS][OUTPUTS])
+int train_1layer_net(double sample[INPUTS], int label, double (*sigmoid)(double input), double weights_io[INPUTS][OUTPUTS])
 {
- /*
+  /*
   *   This is your main training function for 1-layer networks. Recall from lecture that we have a simple,
   *  direct connection between inputs and output neurons (the only layer present here). What we are doing
   *  in effect is training 10 different classifiers, each of which will learn to distinguish one of our
@@ -62,12 +61,26 @@ int train_1layer_net(double sample[INPUTS],int label,double (*sigmoid)(double in
   *          be able to complete this function.
   ***********************************************************************************************************/
 
-  return(0);		// <--- This should return the class for this sample
+  int classified_digit = 0; // The variable that will represet the class for this sample (initially set to zero)
+
+  // Feed-forward pass for the input in the current iteration to get the classified digit
+  classified_digit = classify_1layer(sample, label, sigmoid, weights_io);
+
+  // Initialize the activations array required for back propagation
+  double activations[OUTPUTS];
+
+  // Perform a back propagation with the updated weights. Compute the error of output layer to expected output for that neuron
+  // Adjust weights_io in order to reduce the error
+  backprop_1layer(sample, activations, sigmoid, label, weights_io);
+  // Get the the index of the neuron that "fired" (i.e. the argmax of activations)
+  classified_digit = find_max(activations);
+
+  return classified_digit; // <--- This should return the class for this sample
 }
 
-int classify_1layer(double sample[INPUTS],int label,double (*sigmoid)(double input), double weights_io[INPUTS][OUTPUTS])
+int classify_1layer(double sample[INPUTS], int label, double (*sigmoid)(double input), double weights_io[INPUTS][OUTPUTS])
 {
- /*
+  /*
   *   This function classifies an input sample given the current network weights. It returns a class in
   *  [0,9] corresponding to the digit the network has decided is present in the input sample
   * 
@@ -92,13 +105,23 @@ int classify_1layer(double sample[INPUTS],int label,double (*sigmoid)(double inp
   *          You will need to complete feedforward_1layer(), and logistic() in order to
   *          be able to complete this function.
   ***********************************************************************************************************/
- 
-  return(0);   	// <---	This should return the class for this sample
+
+  // Since there are 10 (or OUTPUTS) neurons, let each neuron, indexed from 0 to 9 classify each digit in [0,9], respectively
+  // So if neuron j has the highest activation value in activations[OUTPUTS], then classify the input as j
+  double activations[OUTPUTS];
+
+  // Perform a feedforward pass to get each neuron's activation unit
+  feedforward_1layer(sample, sigmoid, weights_io, activations);
+
+  // Find the neuron with the highest result (i.e. the neuron that "fired" the most)
+  int classified_digit = find_max(activations);
+
+  return classified_digit;
 }
 
 void feedforward_1layer(double sample[785], double (*sigmoid)(double input), double weights_io[INPUTS][OUTPUTS], double activations[OUTPUTS])
 {
- /*
+  /*
   *  This function performs the feedforward pass of the network's computation - it propagates information
   *  from input to output, determines the input to each neuron, and calls the sigmoid function to
   *  calculate neuron activation.
@@ -114,13 +137,25 @@ void feedforward_1layer(double sample[785], double (*sigmoid)(double input), dou
   * 
   *  NOTE - You must *scale* the input to the sigmoid function using the SIGMOID_SCALE value. Otherwise
   *         the neurons will be totally saturated and learning won't happen.
-  */ 
- 
+  */
+
   /*******************************************************************************************************
    * TO DO: Complete this function. You will need to implement logistic() in order for this to work
    *        with a logistic activation function.
    ******************************************************************************************************/
-  
+
+  // Get the activations for every output neuron
+  for (int j = 0; j < OUTPUTS; j++)
+  {
+    // Calculate the activation of for this neuron (i.e. sum all the weights and their associated inputs)
+    double activation = 0;
+    for (int i = 0; i < INPUTS - 1; i++)
+    {
+      activation += weights_io[i][j] * sample[i];
+    }
+    // Update activations(i.e. sigmoid function on the activation computed above), and scale the input
+    activations[j] = sigmoid(activation * SIGMOID_SCALE);
+  }
 }
 
 void backprop_1layer(double sample[INPUTS], double activations[OUTPUTS], double (*sigmoid)(double input), int label, double weights_io[INPUTS][OUTPUTS])
@@ -146,18 +181,52 @@ void backprop_1layer(double sample[INPUTS], double activations[OUTPUTS], double 
    * 		* Compute an error value given the neuron's target
    * 		* Compute the weight adjustment for each weight (the learning rate is in NeuralNets.h)
    */
-  
-   /***************************************************************************************************
+
+  /***************************************************************************************************
     * TO DO: Implement this function to compute and apply the weight updates for all weights in
     *        the network. You will need to find a way to figure out which sigmoid function you're
     *        using. Then use the procedure discussed in lecture to compute weight updates.
     * ************************************************************************************************/
-   
+
+  // Iterate through every neuron so that we can get their actual outputs
+  for (int j = 0; j < OUTPUTS; j++)
+  {
+    // Calculate the activation of for this neuron (i.e. sum all the weights and their associated inputs)
+    double activation = 0;
+    for (int i = 0; i < INPUTS - 1; i++)
+    {
+      activation += weights_io[i][j] * sample[i];
+    }
+    // Update activations(i.e. sigmoid function on the activation computed above), and scale the input
+    activations[j] = sigmoid(activation * SIGMOID_SCALE);
+  }
+  // Identify which sigmoid function is being used
+  int sigmoid_id = identify_sigmoid(sigmoid);
+
+  // Now that we have the outputs for each neuron, update the weights based on the expected
+  // target for the neurons
+  for (int j = 0; j < OUTPUTS; j++)
+  {
+    // Get the gradient of the squared error over the ouput for this neuron
+    double error_gradient = error(label, activations[j], j, sigmoid_id);
+    // Get the gradient of the activation over the weight from this input to this output
+    // Currently using logistic, need to check if tanh later
+    double sigmoid_activation = get_activation(activations, j, sigmoid_id);
+    for (int i = 0; i < INPUTS - 1; i++)
+    {
+      // Get the gradient of the output over the activation (i.e. need one for logistic and hyper-tangent)
+      double activation_gradient = sample[i];
+      // Mulitply the quantities above together with alpha and update it to the current weight associated to the
+      // given input and out put
+      double error_change = activation_gradient * sigmoid_activation * error_gradient;
+      weights_io[i][j] += ALPHA * error_change;
+    }
+  }
 }
 
-int train_2layer_net(double sample[INPUTS],int label,double (*sigmoid)(double input), int units, double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS])
+int train_2layer_net(double sample[INPUTS], int label, double (*sigmoid)(double input), int units, double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS])
 {
- /*
+  /*
   *   This is your main training function for 2-layer networks. Now you have to worry about the hidden
   *  layer at this time. *Do not work on this until you have completed the 1-layer network*.
   * 
@@ -189,13 +258,25 @@ int train_2layer_net(double sample[INPUTS],int label,double (*sigmoid)(double in
   *          You will need to complete feedforward_2layer(), backprop_2layer(), and logistic() in order to
   *          be able to complete this function.
   ***********************************************************************************************************/
-  
-  return(0);		// <--- Should return the class for this sample  
+
+  int classified_digit = 0; // The variable that will represet the class for this sample (initially set to zero)
+  // Feed-forward pass for the input in the current iteration to get the classified digit
+  classified_digit = classify_2layer(sample, label, sigmoid, units, weights_ih, weights_ho);
+
+  // This is for back propagation
+  double activations[OUTPUTS];
+  double h_activations[units];
+  backprop_2layer(sample, h_activations, activations, sigmoid, label, weights_ih, weights_ho, units);
+
+  // Get the the index of the neuron that "fired"
+  classified_digit = find_max(activations);
+
+  return classified_digit; // <--- Should return the class for this sample
 }
 
-int classify_2layer(double sample[INPUTS],int label,double (*sigmoid)(double input), int units, double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS])
+int classify_2layer(double sample[INPUTS], int label, double (*sigmoid)(double input), int units, double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS])
 {
- /*
+  /*
   *   This function takes an input sample and classifies it using the current network weights. It returns
   *  an int in [0,9] corresponding to which digit the network thinks is present in the input sample.
   * 
@@ -224,13 +305,20 @@ int classify_2layer(double sample[INPUTS],int label,double (*sigmoid)(double inp
   *          be able to complete this function.
   ***********************************************************************************************************/
 
-  return(0);		// <--- Should return the class for this sample  
+  double activations[OUTPUTS];
+  double h_activations[units];
+
+  // Perform a feedforward and obtain the activations for each layer
+  feedforward_2layer(sample, sigmoid, weights_ih, weights_ho, h_activations, activations, units);
+  // Find the argmax which is the index of the neuron that fired the highest
+  int classified_digit = find_max(activations);
+
+  return classified_digit; // <--- Should return the class for this sample
 }
 
-
-void feedforward_2layer(double sample[INPUTS], double (*sigmoid)(double input), double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS], double h_activations[MAX_HIDDEN],double activations[OUTPUTS], int units)
+void feedforward_2layer(double sample[INPUTS], double (*sigmoid)(double input), double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS], double h_activations[MAX_HIDDEN], double activations[OUTPUTS], int units)
 {
- /*
+  /*
   *  Here, implement the feedforward part of the two-layer network's computation.
   * 
   *  Inputs:
@@ -247,8 +335,8 @@ void feedforward_2layer(double sample[INPUTS], double (*sigmoid)(double input), 
   * 
   *  NOTE - You must *scale* the input to the sigmoid function using the SIGMOID_SCALE value. Otherwise
   *         the neurons will be totally saturated and learning won't happen.
-  */ 
- 
+  */
+
   /*******************************************************************************************************
    * TO DO: Complete this function. You will need to implement logistic() in order for this to work
    *        with a logistic activation function.
@@ -261,10 +349,24 @@ void feedforward_2layer(double sample[INPUTS], double (*sigmoid)(double input), 
    *                  the scaling factor has to be adjusted by the factor
    *                  SIGMOID_SCALE*(MAX_HIDDEN/units).
    **************************************************************************************************/
-  
+
+  // Get the activations for every neuron in the hidden layer
+  get_h_activations(sample, sigmoid, h_activations, weights_ih, units);
+  // Get the activations for every neuron in the output layer
+  for (int j = 0; j < OUTPUTS; j++)
+  {
+    // Initialize the total activation to zero
+    double activation = 0;
+    // Iterate through each neuron in the hidden layer
+    for (int i = 0; i < (MAX_HIDDEN / units); i++)
+    {
+      activation += weights_ho[i][j] * h_activations[i];
+    }
+    activations[j] = sigmoid(activation * SIGMOID_SCALE * (MAX_HIDDEN / units));
+  }
 }
 
-void backprop_2layer(double sample[INPUTS],double h_activations[MAX_HIDDEN], double activations[OUTPUTS], double (*sigmoid)(double input), int label, double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS], int units)
+void backprop_2layer(double sample[INPUTS], double h_activations[MAX_HIDDEN], double activations[OUTPUTS], double (*sigmoid)(double input), int label, double weights_ih[INPUTS][MAX_HIDDEN], double weights_ho[MAX_HIDDEN][OUTPUTS], int units)
 {
   /*
    *  This function performs the core of the learning process for 2-layer networks. It performs
@@ -291,18 +393,239 @@ void backprop_2layer(double sample[INPUTS],double h_activations[MAX_HIDDEN], dou
    * 		* Compute an error value given the neuron's target
    * 		* Compute the weight adjustment for each weight (the learning rate is in NeuralNets.h)
    */
-  
-   /***************************************************************************************************
+
+  /***************************************************************************************************
     * TO DO: Implement this function to compute and apply the weight updates for all weights in
     *        the network. You will need to find a way to figure out which sigmoid function you're
     *        using. Then use the procedure discussed in lecture to compute weight updates.
     * ************************************************************************************************/
-   
+  // Get the activations for every neuron in the hidden layer
+  get_h_activations(sample, sigmoid, h_activations, weights_ih, units);
+  // Get the activations for every neuron in the outter layer
+  for (int j = 0; j < OUTPUTS; j++)
+  {
+    // Initialize the total activation to zero
+    double activation = 0;
+    // Iterate through each neuron in the hidden layer
+    for (int i = 0; i < (MAX_HIDDEN / units); i++)
+    {
+      activation += weights_ho[i][j] * h_activations[i];
+    }
+    activations[j] = sigmoid(activation * SIGMOID_SCALE * (MAX_HIDDEN / units));
+  }
+
+  // Identifiy the sigmoid function being used
+  int sigmoid_id = identify_sigmoid(sigmoid);
+
+  // First update all the weighted edges connecting an input to a neuron in the hidden layer
+  for (int k = 0; k < units; k++)
+  {
+    double total_err_sum = get_total_err_sum(label, k, activations, weights_ho, sigmoid_id);
+    for (int i = 0; i < INPUTS; i++)
+    {
+      // Get the gradient of the squared error over the ouput for this neuron
+      // which is target subtracted from the actual output for that neuron
+      double error_gradient = total_err_sum;
+      // Get the gradient of the activation over the weight from this input to this output
+      double sigmoid_activation = get_h_activation(h_activations, k, sigmoid_id);
+
+      // Get the gradient of the output over the activation (i.e. need one for logistic and hyper-tangent)
+      double activation_gradient = sample[i];
+      // Mulitply the quantities above together with alpha and update it to the current weight associated to the
+      // given input and out put
+      double error_change = activation_gradient * sigmoid_activation * error_gradient;
+
+      weights_ih[i][k] += ALPHA * error_change;
+    }
+  }
+
+  // Now update all the weighted edges connecting a neuron in the hidden layer to a neuron in the outter layer
+  for (int j = 0; j < OUTPUTS; j++)
+  {
+    for (int k = 0; k < units; k++)
+    {
+      double total_err_sum = error(label, activations[j], j, sigmoid_id);
+
+      // Get the gradient of the activation over the weight from this input to this output
+      // Currently using logistic, need to check if tanh later
+      double sigmoid_activation = get_activation(activations, j, sigmoid_id);
+      double error_h_change = h_activations[k] * sigmoid_activation * total_err_sum;
+
+      weights_ho[k][j] += ALPHA * error_h_change;
+    }
+  }
 }
 
 double logistic(double input)
 {
- // This function returns the value of the logistic function evaluated on input
- // TO DO: Implement this function!
- return(0);		// <--- Should return the value of the logistic function on the input 
+  // This function returns the value of the logistic function evaluated on input
+  double exponential_val = exp((-1) * input);
+  // Return the logistic function evaluated at the given input (as defined in Unit 5 handout)
+  return 1 / (1 + exponential_val);
+}
+
+/***************************************************************************************************
+                                    HELPER FUNCTIONS
+* ************************************************************************************************/
+
+/* Return the left-most index of the largest element in the given array */
+int find_max(double arr[OUTPUTS])
+{
+  int max_elmnt_idx = 0;
+  for (int i = 0; i < OUTPUTS; i++)
+  {
+    if (arr[max_elmnt_idx] < arr[i])
+      max_elmnt_idx = i;
+  }
+  return max_elmnt_idx;
+}
+
+/* Return the error for output neuron j and input i.*/
+double error(int label, double output_value, int neuron_idx, int sigmoid_id)
+{
+  const int LOGISTIC = 0;
+  const int TANH = 1;
+  const int OTHER = -1;
+  // Calculate the value of the target output for this neuron. Since j indexes
+  //  the output neuron in question, and we classify a digit based on the index of
+  // the neuron => check if j and label are the same
+  double target;
+  if (sigmoid_id == LOGISTIC)
+  {
+    if (neuron_idx == label)
+    {
+      // We define the  ouput of a neuron in this case should have an ouput of MATCH_TARGET_VAL
+      // which indicates that neuron j clearly classified the label in the sample
+      const double MATCH_TARGET_VAL = 0.5;
+      target = MATCH_TARGET_VAL;
+    }
+    else
+    {
+      // We define ouput of a neuron in this case should have an ouput of NOT_TARGET_VAL
+      // so that the ouput of neuron j should be much less than the threshold to indicat
+      // that neuron j should not have 'fired"
+      const double NOT_TARGET_VAL = 0.0;
+
+      target = NOT_TARGET_VAL;
+    }
+  }
+  else if (sigmoid_id == TANH)
+  {
+    if (neuron_idx == label)
+    {
+      const double MATCH_TARGET_VAL = 0;
+      target = MATCH_TARGET_VAL;
+    }
+    else
+    {
+      const double NOT_TARGET_VAL = -1;
+      target = NOT_TARGET_VAL;
+    }
+  }
+
+  // Return their difference
+  return target - output_value;
+}
+
+/* Returns the activition needed for calculating the gradient*/
+double get_activation(double activations[OUTPUTS], int neuron_idx, int sigmoid_id)
+{
+  const int LOGISTIC = 0;
+  const int TANH = 1;
+  double gradient = -1;
+  double neuron_activation = activations[neuron_idx];
+
+  if (sigmoid_id == LOGISTIC)
+  {
+    gradient = neuron_activation * (1 - neuron_activation);
+  }
+  else if (sigmoid_id == TANH)
+  {
+    gradient = 1 - neuron_activation * neuron_activation;
+  }
+
+  return gradient;
+}
+
+/* Returns the activition needed for calculating the gradient in hidden layer. Nothing
+different that one-layer just for the sake of array sizes*/
+double get_h_activation(double h_activations[MAX_HIDDEN], int neuron_idx, int sigmoid_id)
+{
+  const int LOGISTIC = 0;
+  const int TANH = 1;
+  double gradient = -1;
+  double neuron_activation = h_activations[neuron_idx];
+
+  if (sigmoid_id == LOGISTIC)
+  {
+    gradient = neuron_activation * (1 - neuron_activation);
+  }
+  else if (sigmoid_id == TANH)
+  {
+    gradient = 1 - neuron_activation * neuron_activation;
+  }
+
+  return gradient;
+}
+
+/* Return 0 if the sigmoid is a logistic function and if it's
+tanh then return 1*/
+int identify_sigmoid(double (*sigmoid)(double input))
+{
+  const double X_VAL = 0;       // Constant value that we will check function type for
+  const double LOG_Y_VAL = 0.5; // The y-value if sigmoid is logistic
+  const double TANH_VAL = 0;    // The y-value if sigmoid is tanh
+  const int LOG_ID = 0;
+  const int TANH_ID = 1;
+  double value = sigmoid(X_VAL); // The value that is return by our sigmoid that we will test
+
+  int sigmoid_id = -1;
+
+  if (value == LOG_Y_VAL)
+  {
+    sigmoid_id = LOG_ID;
+  }
+  else if (value == TANH_VAL)
+  {
+    sigmoid_id = TANH_VAL;
+  }
+  return sigmoid_id;
+}
+
+/*This is to help feedword so that h_activations is precalculated (not to related to get_h_activation)*/
+void get_h_activations(double sample[INPUTS], double (*sigmoid)(double input), double h_activations[MAX_HIDDEN], double weights_ih[INPUTS][MAX_HIDDEN], int units)
+{
+  // Iterate through each neuron in the hidden layer
+  for (int k = 0; k < units; k++)
+  {
+    // Intialize the total activation for the hidden layer to zero
+    double h_activation = 0;
+    for (int i = 0; i < INPUTS - 1; i++)
+    {
+      h_activation += weights_ih[i][k] * sample[i];
+    }
+    // Pass the summed
+    h_activations[k] = sigmoid(h_activation * SIGMOID_SCALE);
+  }
+}
+
+/* 
+This is used to calculate gradient of of the error with respect to the output
+of a particular neuron. The calculation is used to compute back propagation for
+a 2-layer neural network 
+*/
+double get_total_err_sum(int label, int k, double activations[OUTPUTS], double weights_ho[MAX_HIDDEN][OUTPUTS], int sigmoid_id)
+{
+  double total_err_sum = 0;
+  for (int j = 0; j < OUTPUTS; j++)
+  {
+    // Get the required derivative for the sigmoid activation
+    double sigmoid_activation = get_activation(activations, j, sigmoid_id);
+    // Get the error for output neuron j
+    double output_error = error(label, activations[j], j, sigmoid_id);
+
+    // Calculate the summation needed for the chain rule (similar to 1 layer)
+    total_err_sum += weights_ho[k][j] * sigmoid_activation * output_error;
+  }
+  return total_err_sum;
 }
