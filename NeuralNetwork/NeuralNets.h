@@ -48,6 +48,8 @@ double logistic(double input);
 int find_max(double arr[OUTPUTS]);
 double error(int label, double output_value, int neuron_idx, int sigmoid_id);
 double get_activation(double activations[OUTPUTS], int neuron_idx, int sigmoid_id);
+double get_h_activation(double h_activations[MAX_HIDDEN], int neuron_idx, int sigmoid_id);
+double get_total_err_sum(int label, int k, double activations[OUTPUTS], double weights_ho[MAX_HIDDEN][OUTPUTS], int sigmoid_id);
 void get_h_activations(double sample [INPUTS],double (*sigmoid)(double input), double h_activations[MAX_HIDDEN],double weights_ih[INPUTS][MAX_HIDDEN], int units);
 int identify_sigmoid(double (*sigmoid)(double input));
 #endif
