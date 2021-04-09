@@ -12,7 +12,6 @@ ________________________________________________
 
 Student Name 1 (last, first): Patel, Dishant
 
-
 Student Name 2 (last, first): Najmeddini, Omid
 
 Student number 1: 999013749
@@ -64,26 +63,74 @@ but explain carefully when needed.
 
 4 .- (1 marks) Train a 2-layer network with hyperbolic-tangent activation, using
 	       150 hidden units. Report the classification rates on training and
-	       testing data just as for 1) and 2).	       
+	       testing data just as for 1) and 2).	
+
+		Logistic activation:
+
+		   Training data (last training round): 0.100000
+
+	       Testing data: 0.100000    
+
+		Hyperbolic tangent activation:
+		
+		   Training data (last training round): 0.100000
+
+	       Testing data: 0.100000
 	       
 5 .- (1 marks) Same as 4), except use 10 hidden units instead
 
+		Logistic activation:
+
+		   Training data (last training round): 0.100000
+
+	       Testing data: 0.100000    
+
+		Hyperbolic tangent activation:
+		
+		   Training data (last training round): 0.100000
+
+	       Testing data: 0.100000 
+
 6 .- (1 marks) Same as 5), except use 3 hidden units instead
+
+		Logistic activation:
+
+		   Training data (last training round): 0.100000
+
+	       Testing data: 0.100000    
+
+		Hyperbolic tangent activation:
+		
+		   Training data (last training round): 0.100000
+
+	       Testing data: 0.100000 
 
 7 .- (3 marks) Comment on the experiments in 4, 5, and 6, and give your conclusion
 	       regarding the effect of the number of hidden units on classification
 	       accuracy. 
+		
+		Unfortunately our code does not update the values as expected therefore 
+		the classification accuracy does not increase or decrease when changing 
+		the number of hidden unit. 
 
-	       What is the network with 3 hidden telling you about this classification
-	       problem?
+		However, we believe, based on the notes and lectures, that the classification 
+		accuracy should increase when going from 150 hidden units to 10 hidden units, 
+		but decrease when going from 10 hidden units to 3 hiddent units.
+
+	What is the network with 3 hidden telling you about this classification
+	problem?
+
+		We believe that with just 3 hidden units, there are a lot of false 
+		positive and false negatives due to different neurons or digits 
+		being categorized together. 
 
 8 .- (3 marks) Train the best performing network you can. Use any activation function
 	       you wish, and set the number of hidden units so as to achieve the best
 	       performance.
 
-	       Number of hidden units used:
+	       Number of hidden units used: 30
 
-	       Classification rate on testing data:
+	       Classification rate on testing data: 0.921670
 
 9 .- (3 marks) Describe how you would build a network to play the cat
 	        and mouse game (move the mouse to help it survive).
@@ -121,6 +168,7 @@ but explain carefully when needed.
 		  then simply take then difference of the former and the latter squared as the error.
 
 		- How many layers should you use?
+
 		The number of layers would depend on the number of features we wish to make use of.
 		In the case of one hidden layer, the neurons are fed the configuration of the game. 
 		So neurons in this layer can help determine things like what is the distance from 
@@ -138,22 +186,22 @@ doesn't work, or what problems exist.
         	Complete/Working	Partial		Not done
 
 Logistic
- activation			X
+ activation			x
  
 Tanh
- activation			X
+ activation			x
 
-1L Feed-forward		X  
+1L Feed-forward		x  
 
-1L Backprop			X
+1L Backprop			x
 
-1L Classify			X
+1L Classify			x
 
-2L Feed-forward		X	
+2L Feed-forward		x	
 
-2L Backprop									X
+2L Backprop						x						
 
-2L Classify			X
+2L Classify			x
 _____________________________________________________
 
 Marking:
