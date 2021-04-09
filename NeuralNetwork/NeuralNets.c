@@ -317,7 +317,7 @@ int classify_2layer(double sample[INPUTS], int label, double (*sigmoid)(double i
 
   feedforward_2layer(sample, sigmoid, weights_ih, weights_ho, h_activations, activations, units);
 
-  int classified_digit = 0;
+  int classified_digit = find_max(activations);
   
   return classified_digit; // <--- Should return the class for this sample
 }
@@ -358,16 +358,16 @@ void feedforward_2layer(double sample[INPUTS], double (*sigmoid)(double input), 
   
   get_h_activations(sample, sigmoid, h_activations, weights_ih, units);
   // TODO: Iterate through each neuron in the output layer
-  // for(int j = 0; j < OUTPUTS; j ++){
-  //   // TODO: Initialize the total activation to zero
-  //   double activation = 0;
-  //   // TODO: Iterate through each neuron in the hidden layer
-  //   for (int i = 0; i < (MAX_HIDDEN/units); i++)
-  //   {
-  //     activation += weights_ho[i][j] * h_activations[i];
-  //   }
-  //   activations[j] = sigmoid(activation * SIGMOID_SCALE * (MAX_HIDDEN/units));
-  // }
+  for(int j = 0; j < OUTPUTS; j ++){
+    // TODO: Initialize the total activation to zero
+    double activation = 0;
+    // TODO: Iterate through each neuron in the hidden layer
+    for (int i = 0; i < (MAX_HIDDEN/units); i++)
+    {
+      activation += weights_ho[i][j] * h_activations[i];
+    }
+    activations[j] = sigmoid(activation * SIGMOID_SCALE * (MAX_HIDDEN/units));
+  }
 
 }
 
@@ -513,16 +513,19 @@ int identify_sigmoid(double (*sigmoid)(double input)){
 
 void get_h_activations(double sample [INPUTS], double (*sigmoid)(double input), double h_activations[MAX_HIDDEN],double weights_ih[INPUTS][MAX_HIDDEN], int units ){
   
-  // TODO: Iterate through each input
+  // Iterate through each neuron in the hidden layer
   for (int k = 0; k < units ; k ++){
-    // TODO: Intialize the total activation for the hidden layer to zero
+    // TIntialize the total activation for the hidden layer to zero
     double h_activation = 0;
     for(int i = 0; i < INPUTS - 1; i ++){
       h_activation += weights_ih[i][k] * sample[i];
-      // printf("weight from %d to %d: %f\n", i, k, weights_ih[i][k]);
-    }
-    h_activations[k] = sigmoid(h_activation * SIGMOID_SCALE);
-  }
 
-  
+    }
+    // Pass the summed
+    h_activations[k] = sigmoid(h_activation * SIGMOID_SCALE);
+  }  
 }
+
+// double get_h_error(double weight_value, double output_value, int 
+//   }
+// }
