@@ -587,7 +587,7 @@ int identify_sigmoid(double (*sigmoid)(double input))
   }
   else if (value == TANH_VAL)
   {
-    sigmoid_id = TANH_VAL;
+    sigmoid_id = TANH_ID;
   }
   return sigmoid_id;
 }
